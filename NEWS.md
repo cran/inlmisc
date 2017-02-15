@@ -1,3 +1,7 @@
+# inlmisc 0.2.4
+
+- Fix bug that was resulting in incorrect dimensions for saved graphics.
+
 # inlmisc 0.2.3
 
 - In `PlotMap`, `PlotCrossSection`, and `AddColorKey` functions,
