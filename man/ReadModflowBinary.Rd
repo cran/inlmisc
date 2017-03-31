@@ -8,40 +8,57 @@ ReadModflowBinary(path, data.type = c("array", "flow"), rm.totim.0 = FALSE)
 }
 \arguments{
 \item{path}{character.
-Path name of the binary file.}
+Path to a MODFLOW binary file.}
 
 \item{data.type}{character.
-Description of how the data are saved.}
+Description of how the data were saved.
+Specify \code{"array"} for array data (such as hydraulic heads or drawdowns) and
+\code{"flow"} for cell-by-cell flow data (budget data).}
 
 \item{rm.totim.0}{logical.
-If true, stress-periods at time zero are removed.}
+If true, data associated with the stress period at time zero are removed.}
 }
 \value{
-Returns a \code{list} object of length equal to the
-  number of times the data type is written to the binary file.
+Returns a 'list' object of length equal to the
+  number of times data are written to the binary file.
   The following list components are returned:
   \describe{
-    \item{d}{matrix of data values.}
+    \item{d}{matrix of values.
+      The matrix dimensions typically coincide with the horizontal model grid.
+      The exception is for flow data (\code{data.type = "flow"}) when the
+      cell-by-cell budget file is saved using the \emph{\bold{"COMPACT BUDGET"}} output option;
+      for this case, matrix columns are: cell index (\code{"icell"}),
+      model-grid layer (\code{"layer"}), model-grid row (\code{"row"}),
+      model-grid column (\code{"column"}), cell-by-cell flow (\code{"flow"}),
+      and any auxiliary variables saved using the \emph{\bold{"AUXILIARY"}} output option.}
     \item{kstp}{time step}
     \item{kper}{stress period}
-    \item{desc}{variable name}
-    \item{ilay}{model-grid layer}
-    \item{delt}{length of the current time step.}
-    \item{pertim}{time in the stress period.}
+    \item{desc}{description of data-type, such as "wells".}
+    \item{layer}{model-grid layer}
+    \item{delt}{time-step size}
+    \item{pertim}{elapsed time in the current stress period.}
     \item{totim}{total elapsed time}
   }
+  The layer component (layer) and time components (delt, pertim, totim) are only available
+  for flow data when the cell-by-cell budget file is saved using the
+  \emph{\bold{"COMPACT BUDGET"}} output option.
 }
 \description{
-This is a utility function for \href{https://water.usgs.gov/ogw/modflow/}{MODFLOW}.
-It reads binary output data from a model run.
-}
-\details{
-This function reads binary head (\file{.hds}), drawdown (\file{.ddn}),
-  and budget (\file{.bud}) files generated from a MODFLOW run.
+This is a utility function for \href{https://water.usgs.gov/ogw/modflow/}{MODFLOW}-based models,
+the U.S. Geological Survey's three-dimensional finite-difference groundwater model.
+It reads data from binary files produced by MODFLOW.
 }
 \examples{
-path <- system.file("extdata", "ex3D.hds", package = "inlmisc")
-hds <- ReadModflowBinary(path, "array")
+path <- system.file("extdata", "ex.hds", package = "inlmisc")
+heads <- ReadModflowBinary(path, "array")
+image(heads[[1]]$d)
+str(heads[[1]])
+
+path <- system.file("extdata", "ex.bud", package = "inlmisc")
+budget <- ReadModflowBinary(path, "flow")
+image(budget[[1]]$d)
+str(budget[[1]])
+str(budget[[11]])
 
 }
 \seealso{
