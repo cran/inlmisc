@@ -1,6 +1,6 @@
 Package: inlmisc
 Title: Miscellaneous Functions for the USGS INL Project Office
-Version: 0.3.0
+Version: 0.3.1
 Authors@R: person(given=c("Jason", "C."), family="Fisher", role=c("aut", "cre"), email="jfisher@usgs.gov")
 Description: A collection of functions for creating high-level graphics,
     performing raster-based analysis, processing MODFLOW-based models, etc.
@@ -9,9 +9,9 @@ Description: A collection of functions for creating high-level graphics,
     Idaho National Laboratory (INL) Project Office.
 Depends: R (>= 3.2.0)
 Imports: dplyr, grDevices, graphics, htmlwidgets, igraph, knitr,
-        leaflet, methods, sp, stats, raster, rgdal, rgeos
-Suggests: colorspace, devtools, githubinstall, maptools, roxygen2,
-        testthat
+        leaflet, methods, raster, rgdal, rgeos, sp, stats, tools
+Suggests: colorspace, devtools, githubinstall, httr, maptools,
+        roxygen2, testthat
 License: CC0
 Copyright: This software is in the public domain because it contains
         materials that originally came from the USGS, an agency of the
@@ -25,8 +25,8 @@ LazyData: true
 LazyDataCompression: xz
 RoxygenNote: 6.0.1
 NeedsCompilation: yes
-Packaged: 2017-08-01 00:11:12 UTC; jfisher
+Packaged: 2017-08-14 16:28:09 UTC; jfisher
 Author: Jason C. Fisher [aut, cre]
 Maintainer: Jason C. Fisher <jfisher@usgs.gov>
 Repository: CRAN
-Date/Publication: 2017-08-01 05:22:55 UTC
+Date/Publication: 2017-08-14 18:33:45 UTC
