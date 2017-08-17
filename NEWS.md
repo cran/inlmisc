@@ -1,3 +1,9 @@
+# inlmisc 0.3.2
+
+- In `RecreateLibrary` and `SavePackageDetails` functions, add support for *gzip* file compression.
+
+- In `SavePackageDetails` function, fix bug that results in an 'invalid cross-device link' error on some flavor's of R.
+
 # inlmisc 0.3.1
 
 - Rename `SavePackageNames` function to `SavePackageDetails`.

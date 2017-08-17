@@ -1,7 +1,7 @@
-aaf763830d572af2b60fae0700b64cbc *DESCRIPTION
+054f51db9fc1018133682d913cae0d29 *DESCRIPTION
 f2b7417e4e84de8d729f1a205103181d *LICENSE.note
 d1348bfe31c953c6e6a6837838cabac5 *NAMESPACE
-8fb3d748f7836fb1eec8cb26322882b3 *NEWS.md
+c0a195d3b59e1039d648a76860e6933a *NEWS.md
 d139f40f8f2028ed2a64bbc1bdda9dca *R/AddCertificate.R
 5801b1d437b21b605bab2c0762b16c26 *R/AddColorKey.R
 88959a4cc7b456dc46cbc10faabc611e *R/AddGradientLegend.R
@@ -22,7 +22,7 @@ d9a322e7732e46bcff830cdff421332e *R/PlotCrossSection.R
 dd4be8326b36e9f54cf913254259aa5b *R/PlotMap.R
 b4b0b4097af5a4d473e5bf7da6e561df *R/ReadCodeChunks.R
 6a00e2acbbf14fe52be66033d999ed4a *R/ReadModflowBinary.R
-5d65522f701884805fafd72ce0bd88d4 *R/RecreateLibrary.R
+199399c2342b56562ff9dd315a363a7a *R/RecreateLibrary.R
 c5e3ec29362ae9b62b8ff75a81dd6a1c *R/ReplaceInTemplate.R
 550ada7397fbe5b19dd10612cbb6bd5b *R/RmSmallCellChunks.R
 58df2af15ce586d7cd0d73da6b30a8a9 *R/SetPolygons.R
@@ -54,7 +54,7 @@ b2ef0d016f0ff2e99deb5343cbefb856 *man/Grid2Polygons.Rd
 4fc86f9561a8efc11733ea7b4ddd9e73 *man/PlotMap.Rd
 9fce64268c36d6ed566bb1683cbcd2c4 *man/ReadCodeChunks.Rd
 fdef2705ead926d6894d11dc617dadca *man/ReadModflowBinary.Rd
-1603ab6fbf38342329577b38d10ba010 *man/RecreateLibrary.Rd
+0f3cf8d65ecd33eb76ff081516281e54 *man/RecreateLibrary.Rd
 70a9ae148c654f0e4cd1b45ee5734d22 *man/ReplaceInTemplate.Rd
 2cc3f669dc617481b77d01d1475645aa *man/RmSmallCellChunks.Rd
 d17405fe3f824dce60aa901c83509ef8 *man/SetPolygons.Rd
