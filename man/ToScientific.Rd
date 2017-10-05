@@ -4,37 +4,59 @@
 \alias{ToScientific}
 \title{Format for Scientific Notation}
 \usage{
-ToScientific(x, digits = NULL, lab.type = c("latex", "plotmath"))
+ToScientific(x, digits = NULL, type = c("latex", "plotmath"),
+  na = as.character(NA), delimiter = "$", scipen = NULL, ...)
 }
 \arguments{
 \item{x}{'numeric'.
 Vector of numbers}
 
 \item{digits}{'integer'.
-Number of digits after the decimal point for the mantissa.}
+Number of digits after the decimal point for the coefficent part of a number in scientific notation.}
 
-\item{lab.type}{'character'.
-By default, LaTeX formatted strings for labels are returned.
-Alternatively, \code{lab.type = "plotmath"} returns plotmath-compatible expressions.}
+\item{type}{'character'.
+Specify \code{"latex"} to return numbers in the LaTeX markup language (default),
+or \code{"plotmath"} to return as \code{\link[grDevices]{plotmath}} expressions.}
+
+\item{na}{'character'.
+String to be used for missing values (\code{NA}).
+By default, no string substitution is made for missing values.}
+
+\item{delimiter}{'character'.
+Delimiter for LaTeX mathematical mode, inline (\code{$...$}) by default.}
+
+\item{scipen}{'integer'.
+A penalty to be applied when deciding to format numeric values in scientific or fixed notation.
+Positive values bias towards fixed and negative towards scientific notation:
+fixed notation will be preferred unless it is more than \code{scipen} digits wider.
+By default, all numbers, with the exception of zero, are formatted in scientific notation.}
+
+\item{...}{Arguments passed to the \code{\link{formatC}} function.
+Only applies to fixed formatted values that are not equal to zero.}
 }
 \value{
-For the default \code{lab.type = "latex"}, a 'character' vector of the same length as argument \code{x}.
-  And for \code{lab.type = "plotmath"}, an expression of the same length as \code{x},
-  typically with elements of the form \code{m x 10^n}.
-  In order to comply with \href{https://www.section508.gov}{Section 508},
-  an "x" is used as the label separator for the \code{plotmath} type---rather than
-  the more common "\%*\%" seperator.
+For \code{type = "latex"}, returns a 'character' vector of the same length as argument \code{x}.
+  And for \code{type = "plotmath"}, returns an 'expression' vector of the same length as \code{x}.
 }
 \description{
-This function formats numbers in scientific notation \eqn{m \times 10^{n}}.
+This function formats numbers in scientific notation \eqn{m \times 10^{n}}{m x 10^n}.
+}
+\note{
+As a workaround for \href{https://www.section508.gov}{Section 508} compliance,
+  the letter "x" is used as the times symbol in plotmath expressions---rather
+  than the noncompliant (but better looking) times symbol produced by the \code{"\%*\%"} syntax.
 }
 \examples{
 x <- c(-1e+09, 0, NA, pi * 10^(-5:5))
-ToScientific(x, digits = 2)
-ToScientific(x, digits = 2, lab.type = "plotmath")
+ToScientific(x, digits = 5L, na = "---")
+ToScientific(x, digits = 2L, scipen = 0L)
 
-x <- seq(0, 2e+06, length.out = 5)
-ToScientific(x)
+x <- exp(log(10) * 1:6)
+i <- seq_along(x)
+plot(i, i, type = "n", xaxt = "n", yaxt = "n", ann = FALSE)
+lab <- ToScientific(x, 0L, type = "plotmath", scipen = 0L, big.mark = ",")
+axis(1, i, labels = lab)
+axis(2, i, labels = lab)
 
 }
 \author{

@@ -67,10 +67,10 @@
 #' @details Interval censored data (\code{type = "i"}) requires \code{y} be matrix of 2 columns.
 #'   The first column contains the starting values, the second the ending values.
 #'   Observations are represented using
-#'     (-Inf, t) for left censored,
-#'     (t, Inf) for right censored,
-#'     (t, t) for exact, and
-#'     (t1, t2) for an interval.
+#'     \code{(-Inf, t)} for left censored,
+#'     \code{(t, Inf)} for right censored,
+#'     \code{(t, t)} for exact, and
+#'     \code{(t1, t2)} for an interval.
 #'   Where infinity is represented as \code{Inf} or \code{NA}, and t is a numeric value.
 #'
 #' @return Used for the side-effect of a new plot generated.
@@ -243,7 +243,7 @@ PlotGraph <- function(x, y, xlab, ylab, asp=NA, xlim=NULL, ylim=NULL,
     } else if (scientific[1]) {
       digits <- format.info(as.numeric(xat))[2]
       while (TRUE) {
-        xlabels <- ToScientific(xat, digits=digits, lab.type="plotmath")
+        xlabels <- ToScientific(xat, digits=digits, type="plotmath")
         if (!any(duplicated(unlist(lapply(xlabels, eval)))) | digits > 2) break
         digits <- digits + 1L
       }
@@ -260,7 +260,7 @@ PlotGraph <- function(x, y, xlab, ylab, asp=NA, xlim=NULL, ylim=NULL,
   } else if (scientific[2]) {
       digits <- format.info(as.numeric(yat))[2]
       while (TRUE) {
-        ylabels <- ToScientific(yat, digits=digits, lab.type="plotmath")
+        ylabels <- ToScientific(yat, digits=digits, type="plotmath")
         if (!any(duplicated(unlist(lapply(ylabels, eval)))) | digits > 2) break
         digits <- digits + 1L
       }
@@ -295,7 +295,7 @@ PlotGraph <- function(x, y, xlab, ylab, asp=NA, xlim=NULL, ylim=NULL,
     } else if (scientific[3]) {
       digits <- format.info(as.numeric(yat))[2]
       while (TRUE) {
-        ylabels <- ToScientific(yat, digits=digits, lab.type="plotmath")
+        ylabels <- ToScientific(yat, digits=digits, type="plotmath")
         if (!any(duplicated(unlist(lapply(ylabels, eval)))) | digits > 2) break
         digits <- digits + 1L
       }

@@ -1,6 +1,6 @@
 Package: inlmisc
 Title: Miscellaneous Functions for the USGS INL Project Office
-Version: 0.3.2
+Version: 0.3.3
 Authors@R: person(given=c("Jason", "C."), family="Fisher", role=c("aut", "cre"), email="jfisher@usgs.gov")
 Description: A collection of functions for creating high-level graphics,
     performing raster-based analysis, processing MODFLOW-based models, etc.
@@ -25,8 +25,8 @@ LazyData: true
 LazyDataCompression: xz
 RoxygenNote: 6.0.1
 NeedsCompilation: yes
-Packaged: 2017-08-17 17:17:38 UTC; jfisher
+Packaged: 2017-10-05 16:05:01 UTC; jfisher
 Author: Jason C. Fisher [aut, cre]
 Maintainer: Jason C. Fisher <jfisher@usgs.gov>
 Repository: CRAN
-Date/Publication: 2017-08-17 23:35:24 UTC
+Date/Publication: 2017-10-05 22:10:05 UTC
