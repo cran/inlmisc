@@ -1,3 +1,11 @@
+# inlmisc 0.3.4
+
+- In `PlotMap` function, fixed bug in `range` calculation of raster values by removing `finite = TRUE`.
+
+- In `PlotMap` function, fix extent of background image, rivers, lakes, and roads using `par("usr")`.
+
+- Add `FindOptimalSubset` function, used to identify an optimal subset using a genetic algorithm.
+
 # inlmisc 0.3.3
 
 - In `AddPoints` function: add option to scale symbol size to radius;
