@@ -1,6 +1,14 @@
+# inlmisc 0.3.5
+
+- In `PlotMap` function, fix bug introduced by previous fix of raster range calculation.
+
+- Made `AddCertificate` an 'internal' function.
+
+- Add argument checks using **checkmate** package.
+
 # inlmisc 0.3.4
 
-- In `PlotMap` function, fixed bug in `range` calculation of raster values by removing `finite = TRUE`.
+- In `PlotMap` function, fix bug in range calculation of raster values by removing `finite = TRUE`.
 
 - In `PlotMap` function, fix extent of background image, rivers, lakes, and roads using `par("usr")`.
 
