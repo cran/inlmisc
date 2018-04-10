@@ -49,7 +49,7 @@
 #'                   scientific = TRUE, strip.dim = c(1, 14))
 #'
 
-AddGradientLegend <- function(breaks, pal, at=NULL, n=5L, labels=TRUE,
+AddGradientLegend <- function(breaks, pal, at=NULL, n=5, labels=TRUE,
                               scientific=FALSE, title=NULL,
                               loc=c("bottomleft", "topleft", "topright", "bottomright"),
                               inset=0, strip.dim=c(2, 8)) {
@@ -102,8 +102,8 @@ AddGradientLegend <- function(breaks, pal, at=NULL, n=5L, labels=TRUE,
   graphics::plot(NA, type="n", xlim=c(0, 1), ylim=c(0, 1),
                  xaxs="i", yaxs="i", bty="n",
                  xaxt="n", yaxt="n", xlab="", ylab="")
-  graphics::rect(xleft=0, ybottom=head(breaks_norm, -1),
-                 xright=1, ytop=tail(breaks_norm, -1),
+  graphics::rect(xleft=0, ybottom=utils::head(breaks_norm, -1),
+                 xright=1, ytop=utils::tail(breaks_norm, -1),
                  col=col, border=NA, lwd=lwd)
   graphics::axis(2, at=at_norm, labels=FALSE, lwd=-1, lwd.ticks=lwd, tck=0.25)
   graphics::axis(4, at=at_norm, labels=FALSE, lwd=-1, lwd.ticks=lwd, tck=0.25)
@@ -111,7 +111,7 @@ AddGradientLegend <- function(breaks, pal, at=NULL, n=5L, labels=TRUE,
   graphics::axis(4, at=at_norm, labels=labels, lwd=-1, lwd.ticks=-1,
                  mgp=c(3, 0.2, 0), cex.axis=cex, las=1)
   if (!is.null(title))
-    graphics::title(main=title, line=0.4, cex.main=cex)
+    graphics::title(main=title, line=0.5, cex.main=cex)
 
   invisible(NULL)
 }

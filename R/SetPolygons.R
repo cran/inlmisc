@@ -25,7 +25,6 @@
 #'
 #' @keywords utilities
 #'
-#' @import sp
 #' @importFrom rgeos gIntersection gDifference
 #'
 #' @export
@@ -53,10 +52,8 @@
 
 SetPolygons <- function(x, y, cmd=c("gIntersection", "gDifference"), buffer.width=NA) {
 
-  if (!missing(cmd)) checkmate::assertChoice(cmd, c("gIntersection", "gDifference"))
-  checkmate::assertNumber(buffer.width, na.ok=TRUE, finite=TRUE)
-
   cmd <- match.arg(cmd)
+  checkmate::assertNumber(buffer.width, na.ok=TRUE, finite=TRUE)
 
   if (!inherits(x, c("SpatialPolygons", "SpatialPolygonsDataFrame")))
     stop("argument 'x' is the wrong class")
@@ -65,8 +62,8 @@ SetPolygons <- function(x, y, cmd=c("gIntersection", "gDifference"), buffer.widt
 
   if (inherits(y, "Extent")) {
     crds <- cbind(c(y[1:2], y[2:1], y[1]), c(rep(y[3], 2), rep(y[4], 2), y[3]))
-    y <- SpatialPolygons(list(Polygons(list(Polygon(crds)), "bbox")),
-                         proj4string=crs(x))
+    y <- sp::SpatialPolygons(list(sp::Polygons(list(sp::Polygon(crds)), "bbox")),
+                             proj4string=raster::crs(x))
   }
 
   if (inherits(x, "SpatialPolygonsDataFrame")) {
@@ -82,7 +79,7 @@ SetPolygons <- function(x, y, cmd=c("gIntersection", "gDifference"), buffer.widt
 
   are.intersecting <- rgeos::gIntersects(x, y, byid=TRUE)
 
-  FUN <- function (i) {
+  z <- lapply(seq_along(x), function (i) {
     if (any(are.intersecting[, i])) {
       y.intersect <- y[are.intersecting[, i]]
       if (is.numeric(buffer.width))
@@ -106,14 +103,13 @@ SetPolygons <- function(x, y, cmd=c("gIntersection", "gDifference"), buffer.widt
       p <- if (cmd == "gIntersection") NULL else x[i]@polygons[[1]]
     }
     return(p)
-  }
-  z <- lapply(seq_along(x), FUN)
+  })
 
   is.retained <- !vapply(z, is.null, TRUE)
-  z <- SpatialPolygons(z[is.retained], proj4string=crs(x))
+  z <- sp::SpatialPolygons(z[is.retained], proj4string=raster::crs(x))
   if (inherits(d, "data.frame")) {
     d <- d[is.retained, , drop=FALSE]
-    z <- SpatialPolygonsDataFrame(z, d, match.ID=TRUE)
+    z <- sp::SpatialPolygonsDataFrame(z, d, match.ID=TRUE)
   }
   return(z)
 }

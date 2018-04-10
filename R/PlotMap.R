@@ -1,16 +1,11 @@
 #' Plot Method for Maps
 #'
-#' This function maps raster and point data.
+#' This function maps raster data and geographical features.
 #' A key showing how the colors map to raster values is shown below the map.
 #' The width and height of the graphics region will be automagically determined in some cases.
 #'
 #' @param r 'Raster*', 'Spatial*', or 'CRS'.
 #'   An object that can be converted to a raster layer, or coordinate reference system (CRS).
-#' @param p 'SpatialPointsDataFrame'.
-#'   Spatial point data to be plotted.
-#' @param ...
-#'   Graphics parameters to be passed to \code{\link{AddPoints}}.
-#'   Unused if \code{p = NULL}.
 #' @param layer 'integer'.
 #'   Layer to extract from if \code{r} is of class 'RasterStack/Brick' or 'SpatialGridDataFrame'.
 #' @param att 'integer' or 'character'.
@@ -34,6 +29,7 @@
 #'   If true, the spatial limits will be extended to the next tick mark on the axes beyond the grid extent.
 #' @param extend.z 'logical'.
 #'   If true, the raster value limits will be extended to the next tick mark on the color key beyond the measured range.
+#'   Not used if the \code{zlim} argument is specified.
 #' @param reg.axs 'logical'.
 #'   If true, the spatial data range is extended.
 #' @param dms.tick 'logical'.
@@ -41,7 +37,9 @@
 #' @param bg.lines 'logical'.
 #'   If true, grids or graticules are drawn in back of the raster layer using white lines and a grey background.
 #' @param bg.image 'RasterLayer'.
-#'   An image to drawn in back of the main raster layer \code{r}, image colors derived from vector of gray levels.
+#'   An image to be drawn in back of the main raster layer \code{r}, image colors are derived from a vector of gray levels.
+#'   Raster values typically represent hill shading based on the slope and aspect of land-surface elevations,
+#'   see \code{\link[raster]{hillShade}} function.
 #' @param bg.image.alpha 'numeric'.
 #'   Opacity of the background image from 0 to 1.
 #' @param pal 'function'.
@@ -54,6 +52,7 @@
 #'   Factors require a color for each level.
 #' @param max.dev.dim 'numeric'.
 #'   Vector of length 2 giving the maximum width and height for the graphics device in picas, respectively.
+#'   Where 1 pica is equal to 1/6 of an inch, 4.2333 of a millimetre, or 12 points.
 #'   Suggested dimensions for single-column, double-column, and sidetitle figures are
 #'   \code{c(21, 56)}, \code{c(43, 56)}, and \code{c(56, 43)}, respectively.
 #'   This argument is only applicable when the \code{file} argument is specified.
@@ -73,27 +72,31 @@
 #'   Label crediting the base map.
 #' @param shade 'list'.
 #'   If specified, a semi-transparent shade layer is drawn on top of the raster layer.
-#'   This layer is described using a list of arguments supplied to \code{raster::hillShade} function.
-#'   Passed arguments include \code{"angle"} and \code{"direction"}.
+#'   This layer is described using a list of arguments supplied to the
+#'   \code{\link[raster]{hillShade}} function.
+#'   Passed arguments include \code{angle} and \code{direction}.
 #'   Additional arguments also may be passed that control the vertical aspect ratio
-#'   (\code{"z.factor"}) and color opacity (\code{"alpha"}).
+#'   (\code{z.factor}) and color opacity (\code{alpha}).
 #' @param contour.lines 'list'.
 #'   If specified, contour lines are drawn.
-#'   The contours are described using a list of arguments supplied to \code{contour}.
-#'   Passed arguments include \code{"drawlables"}, \code{"method"}, and \code{"col"}.
+#'   The contours are described using a list of arguments supplied to the \code{\link[raster]{contour}} function.
+#'   Passed arguments include \code{drawlables}, \code{method}, and \code{col}.
 #' @param rivers 'list'.
 #'   If specified, lines are drawn.
-#'   The lines are described using a list of arguments supplied to the plot method for SpatialLines.
-#'   Passed arguments include \code{"x"}, \code{"col"}, and \code{"lwd"}.
+#'   The lines are described using a list of arguments supplied to the plot method for
+#'   class '\code{\link[=SpatialLines-class]{SpatialLines}}'.
+#'   Passed arguments include \code{x}, \code{col}, and \code{lwd}.
 #' @param lakes 'list'.
 #'   If specified, polygons are drawn.
-#'   The polygons are described using a list of arguments supplied to the plot method for SpatialPolygons.
-#'   Passed arguments include \code{"x"}, \code{"col"}, \code{"border"}, and \code{"lwd"}.
+#'   The polygons are described using a list of arguments supplied to the plot method for
+#'   class '\code{\link[=SpatialPolygons-class]{SpatialPolygons}}'.
+#'   Passed arguments include \code{x}, \code{col}, \code{border}, and \code{lwd}.
 #'   Bitmap images require a regular grid.
 #' @param roads 'list'.
 #'   If specified, lines are drawn.
-#'   The lines are described using a list of arguments supplied to the plot method for SpatialLines.
-#'   Passed arguments include \code{"x"}, \code{"col"}, and \code{"lwd"}.
+#'   The lines are described using a list of arguments supplied to the plot method for
+#'   class '\code{\link[=SpatialLines-class]{SpatialLines}}'.
+#'   Passed arguments include \code{x}, \code{col}, and \code{lwd}.
 #' @param draw.key 'logical'.
 #'   If true, a color key should be drawn.
 #' @param draw.raster 'logical'.
@@ -110,7 +113,7 @@
 #'   Unused if \code{file = NULL}
 #' @param useRaster 'logical'.
 #'   If true, a bitmap raster is used to plot \code{r} instead of using individual polygons for each raster cell.
-#'   If \code{UseRaster} is not specified, raster images are used when the \code{getOption("preferRaster")} is true.
+#'   If \code{UseRaster} is not specified, raster images are used when the \code{\link{getOption}("preferRaster")} is true.
 #'   Unused if \code{simplify = TRUE}.
 #' @param simplify 'numeric'.
 #'   Specifying this argument will convert the raster \code{r} to spatial polygons prior to plotting,
@@ -118,7 +121,7 @@
 #'   If \code{simplify > 0} the geometry of the spatial polygons is generalized using the
 #'   Douglas-Peucker algorithm (Douglas and Peucker, 1961);
 #'   and \code{simplify} is the numerical tolerance value to be used by the algorithm.
-#'   See \code{\link[rgeos]{gSimplify}} function for additional information.
+#'   See \code{gSimplify} function for additional information.
 #'
 #' @return Used for the side-effect of a new plot generated.
 #'   Returns a 'list' object with the following graphical parameters:
@@ -139,9 +142,7 @@
 #'
 #' @keywords hplot
 #'
-#' @import sp
 #' @import rgdal
-#' @import raster
 #'
 #' @export
 #'
@@ -151,13 +152,9 @@
 #' r[51:100] <- 2L
 #' r[3:6, 1:5] <- 8L
 #' r <- raster::ratify(r)
-#' rat <- raster::levels(r)[[1]]
-#' rat$land.cover <- c("Pine", "Oak", "Meadow")
-#' rat$code <- c(12, 25, 30)
+#' rat <- cbind(raster::levels(r)[[1]], land.cover = c("Pine", "Oak", "Meadow"))
 #' levels(r) <- rat
-#' PlotMap(r, att = "land.cover", col = c("grey", "orange", "purple"))
-#'
-#' PlotMap(r, att = "code")
+#' PlotMap(r)
 #'
 #' m <- t(datasets::volcano)[61:1, ]
 #' x <- seq(from = 6478705, length.out = 87, by = 10)
@@ -180,6 +177,7 @@
 #'                   inset = c(0.1, 0.1), strip.dim = c(2, 20))
 #'
 #' out <- PlotMap(r, dms.tick = TRUE, file = "Rplots1.pdf")
+#' print(out)
 #'
 #' pdf(file = "Rplots2.pdf", width = out$din[1], height = out$din[2])
 #' PlotMap(r, dms.tick = TRUE)
@@ -192,7 +190,7 @@
 #' graphics.off()
 #'
 
-PlotMap <- function(r, p=NULL, ..., layer=1, att=NULL, n=NULL, breaks=NULL,
+PlotMap <- function(r, layer=1, att=NULL, n=NULL, breaks=NULL,
                     xlim=NULL, ylim=NULL, zlim=NULL, asp=NULL,
                     extend.xy=FALSE, extend.z=FALSE,
                     reg.axs=TRUE, dms.tick=FALSE, bg.lines=FALSE, bg.image=NULL,
@@ -201,9 +199,6 @@ PlotMap <- function(r, p=NULL, ..., layer=1, att=NULL, n=NULL, breaks=NULL,
                     credit=NULL, shade=NULL, contour.lines=NULL,
                     rivers=NULL, lakes=NULL, roads=NULL, draw.key=NULL, draw.raster=TRUE,
                     file=NULL, close.file=TRUE, useRaster, simplify) {
-
-  if (!is.null(p) && !inherits(p, "SpatialPoints"))
-    stop("spatial point data is invalid class")
 
   if (!is.null(bg.image) && !inherits(bg.image, "RasterLayer"))
     stop("background image is invalid class")
@@ -214,24 +209,22 @@ PlotMap <- function(r, p=NULL, ..., layer=1, att=NULL, n=NULL, breaks=NULL,
   }
 
   if (inherits(r, c("RasterStack", "RasterBrick", "SpatialGrid", "SpatialPixelsDataFrame"))) {
-    r <- raster(r, layer=layer)
+    r <- raster::raster(r, layer=layer)
   } else if (inherits(r, "CRS")) {
     is.lim <- !is.null(xlim) && !is.null(ylim)
     if (!is.lim && is.null(bg.image)) stop("spatial limits must be specified")
-    e <- extent(if (is.lim) c(xlim, ylim) else bg.image)
-    r <- raster(e, crs=r)
+    e <- raster::extent(if (is.lim) c(xlim, ylim) else bg.image)
+    r <- raster::raster(e, crs=r)
     r[] <- NA
   }
   if (!inherits(r, "RasterLayer")) {
-    r <- raster(r)
+    r <- raster::raster(r)
     r[] <- NA
   }
 
-  if (!is.null(p)) try(p <- spTransform(p, r@crs), silent=TRUE)
-
   if (is.null(asp) && !is.na(rgdal::CRSargs(raster::crs(r)))) asp <- 1
 
-  is.dms <- dms.tick && !is.na(CRSargs(r@crs))
+  is.dms <- dms.tick && !is.na(rgdal::CRSargs(r@crs))
 
   if (raster::is.factor(r)) {
     att.tbl <- raster::levels(r)[[1]]
@@ -252,15 +245,12 @@ PlotMap <- function(r, p=NULL, ..., layer=1, att=NULL, n=NULL, breaks=NULL,
   xl <- if (is.null(xlim)) c(NA, NA) else xlim
   yl <- if (is.null(ylim)) c(NA, NA) else ylim
   zl <- if (is.null(zlim)) c(NA, NA) else zlim
-
-  e <- cbind(as.vector(extent(r)), if (is.null(p)) NULL else as.vector(extent(p)))
-  e <- c(min(e[1, ]), max(e[2, ]), min(e[3, ]), max(e[4, ]))
+  e <- as.vector(raster::extent(r))
   if (!is.na(xl[1])) e[1] <- xl[1]
   if (!is.na(xl[2])) e[2] <- xl[2]
   if (!is.na(yl[1])) e[3] <- yl[1]
   if (!is.na(yl[2])) e[4] <- yl[2]
-  r <- crop(r, extent(e), snap="near")
-  if (!is.null(p)) p <- crop(p, extent(e), snap="near")
+  r <- raster::crop(r, raster::extent(e), snap="near")
 
   if (all(is.na(r[]))) {
     n <- 0
@@ -294,11 +284,9 @@ PlotMap <- function(r, p=NULL, ..., layer=1, att=NULL, n=NULL, breaks=NULL,
     r[r[] < zl[1] | r[] > zl[2]] <- NA
   }
 
-  if (!all(is.na(r[]))) r <- trim(r)
-
-  xran <- range(c(bbox(r)[1, ]), if (is.null(p)) NULL else bbox(p)[1, ])
-  yran <- range(c(bbox(r)[2, ]), if (is.null(p)) NULL else bbox(p)[2, ])
-
+  if (!all(is.na(r[]))) r <- raster::trim(r)
+  xran <- bbox(r)[1, ]
+  yran <- bbox(r)[2, ]
   if (extend.xy) {
     default.xl <- range(pretty(xran))
     default.yl <- range(pretty(yran))
@@ -413,8 +401,8 @@ PlotMap <- function(r, p=NULL, ..., layer=1, att=NULL, n=NULL, breaks=NULL,
 
   # plot map
   graphics::par(mai=mai2)
-  plot(NA, type="n", xlim=xl, ylim=yl, xaxs="i", yaxs="i", bty="n",
-       xaxt="n", yaxt="n", xlab="", ylab="", asp=asp)
+  graphics::plot(NA, type="n", xlim=xl, ylim=yl, xaxs="i", yaxs="i", bty="n",
+                 xaxt="n", yaxt="n", xlab="", ylab="", asp=asp)
   usr <- graphics::par("usr")
 
   if (is.null(file)) {
@@ -424,34 +412,34 @@ PlotMap <- function(r, p=NULL, ..., layer=1, att=NULL, n=NULL, breaks=NULL,
 
   if (is.dms) {
     al <- list()
-    al[[1]] <- Lines(list(Line(rbind(c(xl[1], yl[1]),
-                                     c(xl[2], yl[1])))), ID="al1")
-    al[[2]] <- Lines(list(Line(rbind(c(xl[1], yl[1]),
-                                     c(xl[1], yl[2])))), ID="al2")
-    al[[3]] <- Lines(list(Line(rbind(c(xl[1], yl[2]),
-                                     c(xl[2], yl[2])))), ID="al3")
-    al[[4]] <- Lines(list(Line(rbind(c(xl[2], yl[1]),
-                                     c(xl[2], yl[2])))), ID="al4")
-    sl <- SpatialLines(al, proj4string=r@crs)
-    sl.dd <- spTransform(sl, CRS("+init=epsg:4326"))
+    al[[1]] <- sp::Lines(list(sp::Line(rbind(c(xl[1], yl[1]),
+                                             c(xl[2], yl[1])))), ID="al1")
+    al[[2]] <- sp::Lines(list(sp::Line(rbind(c(xl[1], yl[1]),
+                                             c(xl[1], yl[2])))), ID="al2")
+    al[[3]] <- sp::Lines(list(sp::Line(rbind(c(xl[1], yl[2]),
+                                             c(xl[2], yl[2])))), ID="al3")
+    al[[4]] <- sp::Lines(list(sp::Line(rbind(c(xl[2], yl[1]),
+                                             c(xl[2], yl[2])))), ID="al4")
+    sl <- sp::SpatialLines(al, proj4string=r@crs)
+    sl.dd <- sp::spTransform(sl, sp::CRS("+init=epsg:4326"))
     e.dd <- pretty(range(bbox(sl.dd)[1, ]))
     n.dd <- pretty(range(bbox(sl.dd)[2, ]))
-    grd.dd <- gridlines(sl.dd, easts=e.dd, norths=n.dd, ndiscr=1000)
+    grd.dd <- sp::gridlines(sl.dd, easts=e.dd, norths=n.dd, ndiscr=1000)
 
     pts.dd <- rgeos::gIntersection(sl.dd, grd.dd, byid=TRUE)
     ids <- row.names(pts.dd)
 
     row.names(pts.dd) <- make.names(ids, unique=TRUE)
-    pts <- spTransform(pts.dd, r@crs)
+    pts <- sp::spTransform(pts.dd, r@crs)
 
     at2 <- list()
-    at2[[1]] <- as.vector(coordinates(pts[ids == "al1 NS", ])[, 1])
-    at2[[2]] <- as.vector(coordinates(pts[ids == "al2 EW", ])[, 2])
-    at2[[3]] <- as.vector(coordinates(pts[ids == "al3 NS", ])[, 1])
-    at2[[4]] <- as.vector(coordinates(pts[ids == "al4 EW", ])[, 2])
+    at2[[1]] <- as.vector(sp::coordinates(pts[ids == "al1 NS", ])[, 1])
+    at2[[2]] <- as.vector(sp::coordinates(pts[ids == "al2 EW", ])[, 2])
+    at2[[3]] <- as.vector(sp::coordinates(pts[ids == "al3 NS", ])[, 1])
+    at2[[4]] <- as.vector(sp::coordinates(pts[ids == "al4 EW", ])[, 2])
 
-    xlabs <- .FormatDMS(dd2dms(coordinates(pts.dd[ids == "al3 NS", ])[, 1], NS=FALSE))
-    ylabs <- .FormatDMS(dd2dms(coordinates(pts.dd[ids == "al2 EW", ])[, 2], NS=TRUE))
+    xlabs <- .FormatDMS(sp::dd2dms(sp::coordinates(pts.dd[ids == "al3 NS", ])[, 1], NS=FALSE))
+    ylabs <- .FormatDMS(sp::dd2dms(sp::coordinates(pts.dd[ids == "al2 EW", ])[, 2], NS=TRUE))
   } else {
     at2 <- list()
     at2[[1]] <- pretty(xl)
@@ -467,7 +455,7 @@ PlotMap <- function(r, p=NULL, ..., layer=1, att=NULL, n=NULL, breaks=NULL,
     graphics::rect(xleft=usr[1], ybottom=usr[3], xright=usr[2], ytop=usr[4],
                    col="#E7E7E7", border=NA)
     if (is.dms) {
-      plot(spTransform(grd.dd, r@crs), lwd=lwd, col="#FFFFFF", add=TRUE)
+      sp::plot(sp::spTransform(grd.dd, r@crs), lwd=lwd, col="#FFFFFF", add=TRUE)
     } else {
       graphics::abline(v=at2[[1]], lwd=lwd, col="#FFFFFF")
       graphics::abline(h=at2[[2]], lwd=lwd, col="#FFFFFF")
@@ -477,7 +465,7 @@ PlotMap <- function(r, p=NULL, ..., layer=1, att=NULL, n=NULL, breaks=NULL,
   }
 
   if (!is.null(bg.image)) {
-    bg.image <- crop(bg.image, extent(graphics::par("usr")), snap="out")
+    bg.image <- raster::crop(bg.image, raster::extent(graphics::par("usr")), snap="out")
     if (!is.null(bg.image))
       raster::image(bg.image, maxpixels=length(bg.image), useRaster=TRUE,
                     col=grDevices::grey(0:255 / 255, alpha=bg.image.alpha), add=TRUE)
@@ -488,11 +476,12 @@ PlotMap <- function(r, p=NULL, ..., layer=1, att=NULL, n=NULL, breaks=NULL,
       ply <- Grid2Polygons(r, level=TRUE, at=breaks, zlim=zl)
       if (simplify > 0) {
         simple.ply <- rgeos::gSimplify(ply, tol=simplify, topologyPreserve=TRUE)
-        FUN <- function(i) methods::slot(i, "ID")
-        ids <- sapply(methods::slot(simple.ply, "polygons"), FUN)
+        ids <- sapply(methods::slot(simple.ply, "polygons"), function(i) {
+          methods::slot(i, "ID")
+        })
         ply <- sp::SpatialPolygonsDataFrame(simple.ply, data=ply[ids, ]@data)
       }
-      plot(ply, col=cols, border=NA, add=TRUE)
+      sp::plot(ply, col=cols, border=NA, add=TRUE)
     } else {
       raster::image(r, maxpixels=length(r), useRaster=useRaster, zlim=zl,
                     col=cols, add=TRUE, breaks=breaks)
@@ -507,28 +496,29 @@ PlotMap <- function(r, p=NULL, ..., layer=1, att=NULL, n=NULL, breaks=NULL,
       direc <- ifelse(length(direc) == 1 && !is.na(direc), direc, 0)
       alpha <- ifelse(length(alpha) == 1 && !is.na(alpha), alpha, 1)
       rr <- r * zfact
-      hs <- hillShade(slope=terrain(rr), aspect=terrain(rr, opt="aspect"),
-                      angle=angle, direction=direc)
+      hs <- raster::hillShade(slope=raster::terrain(rr),
+                              aspect=raster::terrain(rr, opt="aspect"),
+                              angle=angle, direction=direc)
       raster::image(hs, maxpixels=length(hs), useRaster=TRUE,
                     col=grDevices::grey(0:255 / 255, alpha=alpha), add=TRUE)
     }
   }
 
   if (is.list(rivers)) {
-    river <- spTransform(rivers[["x"]], r@crs)
-    river <- crop(river, extent(graphics::par("usr")))
+    river <- sp::spTransform(rivers[["x"]], r@crs)
+    river <- raster::crop(river, raster::extent(graphics::par("usr")))
     if (!is.null(river)) {
       color <- as.character(rivers[["col"]])
       width <- as.numeric(rivers[["lwd"]])
       color <- ifelse(length(color) == 1 && .AreColors(color), color, "#3399CC")
       width <- ifelse(length(width) == 1 && !is.na(width), width, 0.5)
-      plot(river, col=color, lwd=width, add=TRUE)
+      sp::plot(river, col=color, lwd=width, add=TRUE)
     }
   }
 
   if (is.list(lakes)) {
-    lake <- spTransform(lakes[["x"]], r@crs)
-    lake <- crop(lake, extent(graphics::par("usr")))
+    lake <- sp::spTransform(lakes[["x"]], r@crs)
+    lake <- raster::crop(lake, raster::extent(graphics::par("usr")))
     if (!is.null(lake)) {
       color <- as.character(lakes[["col"]])
       bordr <- as.character(lakes[["border"]])
@@ -536,19 +526,19 @@ PlotMap <- function(r, p=NULL, ..., layer=1, att=NULL, n=NULL, breaks=NULL,
       color <- ifelse(length(color) == 1 && .AreColors(color), color, "#CCFFFF")
       bordr <- ifelse(length(bordr) == 1 && .AreColors(bordr), bordr, "#3399CC")
       width <- ifelse(length(width) == 1 && !is.na(width), width, 0.5)
-      plot(lake, col=color, border=bordr, lwd=width, add=TRUE)
+      sp::plot(lake, col=color, border=bordr, lwd=width, add=TRUE)
     }
   }
 
   if (is.list(roads)) {
-    road <- spTransform(roads[["x"]], r@crs)
-    road <- crop(road, extent(graphics::par("usr")))
+    road <- sp::spTransform(roads[["x"]], r@crs)
+    road <- raster::crop(road, raster::extent(graphics::par("usr")))
     if (!is.null(roads)) {
       color <- as.character(roads[["col"]])
       width <- as.numeric(roads[["lwd"]])
       color <- ifelse(length(color) == 1 && .AreColors(color), color, "#666666")
       width <- ifelse(length(width) == 1 && !is.na(width), width, 0.25)
-      plot(road, col=color, lwd=width, add=TRUE)
+      sp::plot(road, col=color, lwd=width, add=TRUE)
     }
   }
 
@@ -565,8 +555,6 @@ PlotMap <- function(r, p=NULL, ..., layer=1, att=NULL, n=NULL, breaks=NULL,
                     xlim=xl, ylim=yl, zlim=zl, labcex=0.5, drawlabels=drawl,
                     method=metho, axes=FALSE, col=color, lwd=lwd, add=TRUE)
   }
-
-  if (!is.null(p)) AddPoints(p, xlim=xlim, ylim=ylim, zlim=zlim, ...)
 
   graphics::axis(1, at=at2[[1]], labels=FALSE, lwd=-1, lwd.ticks=lwd, tcl=tcl,
                  cex.axis=cex)
@@ -612,17 +600,17 @@ PlotMap <- function(r, p=NULL, ..., layer=1, att=NULL, n=NULL, breaks=NULL,
 
 
 .AddNorthArrow <- function(loc, crs, cex) {
-  crs.dd <- CRS("+init=epsg:4326")
+  crs.dd <- sp::CRS("+init=epsg:4326")
   usr <- graphics::par("usr")
   x.mid <- (usr[2] + usr[1]) / 2
   y.mid <- (usr[4] + usr[3]) / 2
   d <- 0.05 * (usr[4] - usr[3])
   xy <- rbind(c(x.mid, y.mid), c(x.mid, y.mid + d))
-  sp.dd <- spTransform(SpatialPoints(xy, proj4string=crs), crs.dd)
+  sp.dd <- sp::spTransform(sp::SpatialPoints(xy, proj4string=crs), crs.dd)
   dd <- sp.dd@coords
   d.dd <- sqrt((dd[2, 1] - dd[1, 1])^2 + (dd[2, 2] - dd[1, 2])^2)
   dd <- rbind(dd[1, ], c(dd[1, 1],  dd[1, 2] + d.dd))
-  sp.xy <- spTransform(SpatialPoints(dd, proj4string=crs.dd), crs)
+  sp.xy <- sp::spTransform(sp::SpatialPoints(dd, proj4string=crs.dd), crs)
   xy <- sp.xy@coords
   padx <- 0.1 * (usr[2] - usr[1])
   pady <- 0.1 * (usr[4] - usr[3])
@@ -647,7 +635,7 @@ PlotMap <- function(r, p=NULL, ..., layer=1, att=NULL, n=NULL, breaks=NULL,
     pos <- 4
   }
   graphics::arrows(x0, y0, x1, y1, length=0.1)
-  text(x1, y1, labels="N", pos=pos, cex=cex)
+  graphics::text(x1, y1, labels="N", pos=pos, cex=cex)
 }
 
 
@@ -665,6 +653,7 @@ PlotMap <- function(r, p=NULL, ..., layer=1, att=NULL, n=NULL, breaks=NULL,
 
 
 .AreColors <- function(x) {
-  sapply(x, function(i) tryCatch(is.matrix(grDevices::col2rgb(i)),
-                                 error=function(e) FALSE))
+  sapply(x, function(i) tryCatch({
+    is.matrix(grDevices::col2rgb(i))
+  }, error=function(e) FALSE))
 }

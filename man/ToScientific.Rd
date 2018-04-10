@@ -5,14 +5,15 @@
 \title{Format for Scientific Notation}
 \usage{
 ToScientific(x, digits = NULL, type = c("latex", "plotmath"),
-  na = as.character(NA), delimiter = "$", scipen = NULL, ...)
+  na = as.character(NA), delimiter = "$", scipen = NULL, big.mark = ",",
+  ...)
 }
 \arguments{
 \item{x}{'numeric'.
 Vector of numbers}
 
 \item{digits}{'integer'.
-Number of digits after the decimal point for the coefficent part of a number in scientific notation.}
+Desired number of digits after the decimal point.}
 
 \item{type}{'character'.
 Specify \code{"latex"} to return numbers in the LaTeX markup language (default),
@@ -23,16 +24,20 @@ String to be used for missing values (\code{NA}).
 By default, no string substitution is made for missing values.}
 
 \item{delimiter}{'character'.
-Delimiter for LaTeX mathematical mode, inline (\code{$...$}) by default.}
+Delimiter for LaTeX mathematical mode, inline (\code{$...$}) by default.
+Does not apply to missing value strings.}
 
 \item{scipen}{'integer'.
 A penalty to be applied when deciding to format numeric values in scientific or fixed notation.
 Positive values bias towards fixed and negative towards scientific notation:
 fixed notation will be preferred unless it is more than \code{scipen} digits wider.
-By default, all numbers, with the exception of zero, are formatted in scientific notation.}
+Specify \code{NULL} to format all numbers, with the exception of zero, in scientific notation.}
 
-\item{...}{Arguments passed to the \code{\link{formatC}} function.
-Only applies to fixed formatted values that are not equal to zero.}
+\item{big.mark}{'character'.
+Mark inserted between every big interval before the decimal point.
+By default, commas are placed every 3 decimal places for numbers larger than 999.}
+
+\item{...}{Not used}
 }
 \value{
 For \code{type = "latex"}, returns a 'character' vector of the same length as argument \code{x}.
@@ -41,20 +46,18 @@ For \code{type = "latex"}, returns a 'character' vector of the same length as ar
 \description{
 This function formats numbers in scientific notation \eqn{m \times 10^{n}}{m x 10^n}.
 }
-\note{
-As a workaround for \href{https://www.section508.gov}{Section 508} compliance,
-  the letter "x" is used as the times symbol in plotmath expressions---rather
-  than the noncompliant (but better looking) times symbol produced by the \code{"\%*\%"} syntax.
-}
 \examples{
 x <- c(-1e+09, 0, NA, pi * 10^(-5:5))
-ToScientific(x, digits = 5L, na = "---")
+ToScientific(x, digits = 2L, na = "---")
+
 ToScientific(x, digits = 2L, scipen = 0L)
 
-x <- exp(log(10) * 1:6)
+x <- seq(0, 20000, by = 4000)
+ToScientific(x, scipen = 0)
+
+lab <- ToScientific(x, type = "plotmath", scipen = 0L)
 i <- seq_along(x)
-plot(i, i, type = "n", xaxt = "n", yaxt = "n", ann = FALSE)
-lab <- ToScientific(x, 0L, type = "plotmath", scipen = 0L, big.mark = ",")
+plot(i, type = "n", xaxt = "n", yaxt = "n", ann = FALSE)
 axis(1, i, labels = lab)
 axis(2, i, labels = lab)
 

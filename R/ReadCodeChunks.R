@@ -6,7 +6,7 @@
 #'   Path name of the \bold{knitr} source document (\file{.Rnw} or \file{.Rmd}),
 #'   or R code that has been extracted from a \bold{knitr} source document (\file{.R}).
 #'
-#' @details If the source document is \file{.Rnw} or \file{.Rmd} the \code{\link[knitr]{purl}} function is used to extract the R code.
+#' @details If the source document is \file{.Rnw} or \file{.Rmd} the \code{purl} function is used to extract the R code.
 #'   The R code is read into the current session using a chunk separator of the from \code{## ---- chunk-name}
 #'   (at least four dashes before the chunk name) in the script.
 #'   Unnamed chunks (that is, \code{chunk-name} is missing) will be assigned
@@ -25,14 +25,14 @@
 #' @export
 #'
 #' @examples
-#' path <- system.file("doc", "knitr-intro.Rmd", package = "knitr")
-#' chunks <- ReadCodeChunks(path)
+#' file <- system.file("misc", "knitr-markdown.Rmd", package = "inlmisc")
+#' chunks <- ReadCodeChunks(file)
 #'
 #' attr(chunks, "path")
 #' names(chunks)
-#' chunks[["show-off"]]
+#' chunks[["named-chunk-2"]]
 #'
-#' eval(parse(text = unlist(chunks[c("show-off", "graphics")])))
+#' eval(parse(text = unlist(chunks[c("unnamed-chunk-3", "named-chunk-4")])))
 #'
 
 ReadCodeChunks <- function(path) {

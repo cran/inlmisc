@@ -4,17 +4,26 @@
 \alias{CreateWebMap}
 \title{Create a Web Map Using The National Map Services}
 \usage{
-CreateWebMap(..., collapsed = TRUE)
+CreateWebMap(maps, ..., collapsed = TRUE)
 }
 \arguments{
-\item{...}{Leaflet options to be passed to the \code{\link[leaflet]{leafletOptions}} function.}
+\item{maps}{'character'.
+Vector of TNM base maps to include in the web map.
+Possible maps include \code{"Topo"}, \code{"Imagery"},
+\code{"Imagery Topo"}, \code{"Hydrography"}, and \code{"Hill Shade"}.
+All base maps are included by default.}
+
+\item{...}{Arguments to be passed to the \code{\link[leaflet]{leaflet}} function.}
 
 \item{collapsed}{'logical'.
 If true, the layers control will be rendered as an icon that expands when hovered over.}
 }
 \value{
 Returns a 'leaflet' Hypertext Markup Language (HTML) widget object with TNM base maps.
-  See example for instructions on how to add additional graphic layers to the map widget.
+  See example for instructions on how to add additional graphic layers
+  (such as points, lines, and polygons) to the map widget.
+  Graphic layers added to the web map must be in latitude and longitude using WGS 84
+  (also known as \href{https://epsg.io/4326}{EPSG:4326}).
 }
 \description{
 This function creates a \href{http://leafletjs.com/}{Leaflet} map widget with base maps offered through
@@ -33,13 +42,12 @@ A number of \href{https://viewer.nationalmap.gov/services/}{map services} are of
 map <- CreateWebMap()
 lng <- c(-112.049705, -122.171257, -77.367458, -149.803565, -80.248344)
 lat <- c(43.517810, 37.456526, 38.947206, 61.187905, 26.080860)
-pop <- c("ID", "CA", "VA", "AK", "FL")
-map <- leaflet::addMarkers(map, lng, lat, popup = pop)
+map <- leaflet::addMarkers(map, lng, lat)
 map
 
 }
 \seealso{
-\code{\link[leaflet]{addWMSTiles}}
+\code{\link{AddWebMapElements}}
 }
 \author{
 J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center

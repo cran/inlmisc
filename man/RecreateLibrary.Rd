@@ -7,7 +7,7 @@
 \usage{
 RecreateLibrary(file = "R-packages.tsv", lib = .libPaths()[1],
   repos = getOption("repos"), snapshot = FALSE, local = NULL,
-  versions = FALSE, github = FALSE, quiet = FALSE)
+  versions = FALSE, github = FALSE, parallel = TRUE, quiet = FALSE)
 
 SavePackageDetails(file = "R-packages.tsv", lib = .libPaths(), pkg = NULL)
 }
@@ -58,6 +58,10 @@ Therefore, the user may be prompted with suggested repository names to identify 
 Package vignettes are not built using this option.
 An example of an \R package that is only available on GitHub is \pkg{AnomalyDetection},
 located at \href{https://github.com/twitter/AnomalyDetection}{twitter/AnomalyDetection}.}
+
+\item{parallel}{'logical' or 'integer'.
+Whether to use parallel processes for a parallel install of more than one source package.
+This argument can also be used to specify the number of cores to employ.}
 
 \item{quiet}{'logical'.
 If true, reduce the amount of output.}
@@ -133,11 +137,6 @@ This package-installation method does not offer one-hundred percent reproducibil
   Alternative methods, that offer better reproducibility, are available using the
   \pkg{checkpoint} and \pkg{packrat} packages;
   both of which provide robust tools for dependency management in \R.
-
-  If affiliated with the U.S. Department of Interior (DOI), you may receive the following error message:
-  \dQuote{SSL certificate problem: unable to get local issuer certificate}.
-  The error results from a missing X.509 certificate that permits the DOI to scan encrypted data for security reasons.
-  A fix for this error is given in the \code{\link{AddCertificate}} function documentation.
 }
 \examples{
 # Run on old version of R
@@ -152,7 +151,7 @@ inlmisc::RecreateLibrary(repos = repos, github = TRUE)
 }
 
 # Clean up example
-unlink("R-packages.tsv")
+file.remove("R-packages.tsv")
 
 }
 \seealso{

@@ -4,8 +4,8 @@
 \alias{PlotGraph}
 \title{Plot Method for Graphs}
 \usage{
-PlotGraph(x, y, xlab, ylab, asp = NA, xlim = NULL, ylim = NULL, xn = 5L,
-  yn = 5L, ylog = FALSE, type = "s", lty = 1, lwd = 1, pch = NULL,
+PlotGraph(x, y, xlab, ylab, asp = NA, xlim = NULL, ylim = NULL, xn = 5,
+  yn = 5, ylog = FALSE, type = "s", lty = 1, lwd = 1, pch = NULL,
   col = NULL, bg = NA, fill = NULL, pt.cex = 1, seq.date.by = NULL,
   scientific = NA, conversion.factor = NULL, boxwex = 0.8,
   center.date.labels = FALSE, bg.polygon = NULL)
@@ -143,7 +143,7 @@ graphics.off()
 
 }
 \seealso{
-\code{\link{matplot}}, \code{\link{boxplot}}
+\code{\link[graphics]{matplot}}, \code{\link[graphics]{boxplot}}
 }
 \author{
 J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center

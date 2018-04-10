@@ -121,26 +121,22 @@
 #' par(op)
 #'
 
-Grid2Polygons <- function(grd, zcol=1L, level=FALSE, at, cuts=20L,
+Grid2Polygons <- function(grd, zcol=1, level=FALSE, at=NULL, cuts=20,
                           pretty=FALSE, xlim=NULL, ylim=NULL, zlim=NULL,
                           ply=NULL) {
 
   # check arguments
-  checkmate::qassert(zcol, c("s1", "x1"))
-  checkmate::assertLogical(level, len=1)
-  if (!missing(at)) checkmate::assertNumeric(at, any.missing=FALSE, min.len=2)
-  checkmate::assertInt(cuts, lower=1)
-  checkmate::assertLogical(pretty, len=1)
+  if (!inherits(grd, c("BasicRaster", "SpatialPixelsDataFrame", "SpatialGridDataFrame")))
+    stop("Assertion on 'grd' failed: Wrong class.")
+  checkmate::qassert(zcol, c("S1[0,)", "X1[0,)"))
+  checkmate::assertFlag(level)
+  checkmate::assertNumeric(at, any.missing=FALSE, min.len=2, null.ok=TRUE)
+  checkmate::assertCount(cuts, positive=TRUE)
+  checkmate::assertFlag(pretty)
   checkmate::assertNumeric(xlim, len=2, sorted=TRUE, null.ok=TRUE)
   checkmate::assertNumeric(ylim, len=2, sorted=TRUE, null.ok=TRUE)
   checkmate::assertNumeric(zlim, len=2, sorted=TRUE, null.ok=TRUE)
-
-  # check class
-  what <- c("RasterLayer", "RasterStack", "RasterBrick",
-            "SpatialPixelsDataFrame", "SpatialGridDataFrame")
-  if (!inherits(grd, what)) stop("Incorrect 'grd' class")
-  what <- c("SpatialPolygons", "SpatialPolygonsDataFrame")
-  if (!is.null(ply) && !inherits(ply, what)) stop("Incorrect 'ply' class")
+  checkmate::assertClass(ply, "SpatialPolygons", null.ok=TRUE)
 
   # convert grid to 'RasterLayer' class
   if (!inherits(grd, "RasterLayer"))
@@ -173,7 +169,7 @@ Grid2Polygons <- function(grd, zcol=1L, level=FALSE, at, cuts=20L,
 
   # determine break points
   if (level) {
-    if (missing(at)) {
+    if (is.null(at)) {
       if (pretty)
         at <- pretty(zlim, cuts)
       else
@@ -221,17 +217,20 @@ Grid2Polygons <- function(grd, zcol=1L, level=FALSE, at, cuts=20L,
   levs <- sort(unique(stats::na.omit(z)))
 
   # find polygon nodes for each level
-  FUN <- function(i) .FindPolyNodes(segs[segs[, "z"] == i, c("a", "b")])
-  poly.nodes <- lapply(levs, FUN)
+  poly.nodes <- lapply(levs, function(i) {
+    .FindPolyNodes(segs[segs[, "z"] == i, c("a", "b")])
+  })
 
   # build lists of 'Polygon' objects
-  FUN <- function(i) lapply(i, function(j) sp::Polygon(coords[j, ]))
-  poly <- lapply(poly.nodes, FUN)
+  poly <- lapply(poly.nodes, function(i) {
+    lapply(i, function(j) sp::Polygon(coords[j, ]))
+  })
 
   # build list of 'Polygons' objects
   ids <- make.names(1:length(poly), unique=TRUE)
-  FUN <- function(i) sp::Polygons(poly[[i]], ID=ids[i])
-  polys <- lapply(1:length(poly), FUN)
+  polys <- lapply(1:length(poly), function(i) {
+    sp::Polygons(poly[[i]], ID=ids[i])
+  })
 
   # convert to 'SpatialPolygons' object, add datum and projection
   sp.polys <- sp::SpatialPolygons(polys, proj4string=raster::crs(grd))

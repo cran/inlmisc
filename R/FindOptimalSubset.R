@@ -38,9 +38,9 @@
 #'   Number of consecutive generations without any improvement in the
 #'   \dQuote{best} fitness value before the GA is stopped.
 #' @param suggestions 'matrix'.
-#'   Binary representation of integer chromosomes to be included in the initial population.
-#'   Use the \code{\link{EncodeChromosome}(string, n)} command
-#'   to encode integer chromosomes as bit strings.
+#'   Integer (or binary) representation of chromosomes to be included in the initial population (optional).
+#'   For binary representation of chromosomes, the number of columns must match the number of decision variables.
+#'   See returned list components \code{solution} and \code{ga_output@solution} for suggested values for this arugment.
 #' @param parallel 'logical' or 'integer'.
 #'   Whether to use parallel computing.
 #'   This argument can also be used to specify the number of cores
@@ -117,9 +117,9 @@
 #' }
 #'
 
-FindOptimalSubset <- function(n, k, Fitness, ..., popSize=100L,
-                              migrationRate=0.1, migrationInterval=10L,
-                              pcrossover=0.8, pmutation=0.1, elitism=0L,
+FindOptimalSubset <- function(n, k, Fitness, ..., popSize=100,
+                              migrationRate=0.1, migrationInterval=10,
+                              pcrossover=0.8, pmutation=0.1, elitism=0,
                               maxiter=1000L, run=maxiter, suggestions=NULL,
                               parallel=TRUE, seed=NULL) {
 
@@ -136,18 +136,37 @@ FindOptimalSubset <- function(n, k, Fitness, ..., popSize=100L,
   checkmate::assertInt(maxiter, lower=1)
   checkmate::assertInt(run, lower=1, upper=maxiter)
   checkmate::assertMatrix(suggestions, null.ok=TRUE)
-  checkmate::qassert(parallel, c("b1", "x1"))
+  checkmate::qassert(parallel, c("B1", "X1[0,)"))
   checkmate::assertInt(seed, null.ok=TRUE)
 
   # set number of islands
-  if (is.logical(parallel)) {
+  if (is.logical(parallel))
     numIslands <- if (parallel) parallel::detectCores() else 4L
-  } else if (is.numeric(parallel)) {
+  else
     numIslands <- parallel
-  }
 
   # calculate number of bits in the binary string representing the chromosome
   nBits <- ceiling(log2(n + 1)) * k
+
+  # format suggested chromosomes
+  if (!is.null(suggestions)) {
+    if (identical(as.vector(suggestions), as.numeric(as.logical(suggestions)))) {
+      if (ncol(suggestions) != nBits)
+        stop("Problem with number of columns in binary 'suggestions' argument")
+    } else {
+      m <- suggestions
+      if (k < ncol(m)) {
+        set.seed(seed); m <- t(apply(m, 1, sample, size=k))
+      } else if (k > ncol(m)) {
+        idxs <- seq_len(n)
+        set.seed(seed)
+        m <- t(apply(m, 1, function(i) {
+          c(i, sample(idxs[-i], k - ncol(m)))
+        }))
+      }
+      suggestions <- t(apply(m, 1, function(i) EncodeChromosome(i, n)))
+    }
+  }
 
   # solve genetic algorithm
   ga_time <- system.time({
@@ -180,8 +199,9 @@ FindOptimalSubset <- function(n, k, Fitness, ..., popSize=100L,
   })
 
   # decode solution
-  FUN <- function(i) sort(DecodeChromosome(i, n))
-  m <- t(apply(ga_output@solution, 1, FUN))
+  m <- t(apply(ga_output@solution, 1, function(i) {
+    sort(DecodeChromosome(i, n))
+  }))
   solution <- m[!duplicated(m), , drop=FALSE]
 
   # bundle output
@@ -220,8 +240,9 @@ FindOptimalSubset <- function(n, k, Fitness, ..., popSize=100L,
 .Crossover <- function(object, parents, n) {
   fitness_parents <- object@fitness[parents]
   encoded_parents <- object@population[parents, , drop=FALSE]
-  FUN <- function(i) DecodeChromosome(i, n)
-  decoded_parents <- t(apply(encoded_parents, 1, FUN))
+  decoded_parents <- t(apply(encoded_parents, 1, function(i) {
+    DecodeChromosome(i, n)
+  }))
   p1 <- decoded_parents[1, ]
   p2 <- decoded_parents[2, ]
   c1 <- p1
@@ -232,8 +253,9 @@ FindOptimalSubset <- function(n, k, Fitness, ..., popSize=100L,
   c1[i1] <- p2[i1]
   c2[i2] <- p1[i2]
   decoded_children <- rbind(c1, c2)
-  FUN <- function(i) EncodeChromosome(i, n)
-  encoded_children <- t(apply(decoded_children, 1, FUN))
+  encoded_children <- t(apply(decoded_children, 1, function(i) {
+    EncodeChromosome(i, n)
+  }))
   m <- t(apply(object@population, 1, function(i) sort(DecodeChromosome(i, n))))
   FindFitness <- function(child) {
     return(object@fitness[which(apply(m, 1, function(i) identical(i, child)))[1]])
@@ -280,8 +302,9 @@ FindOptimalSubset <- function(n, k, Fitness, ..., popSize=100L,
 
 EncodeChromosome <- function(x, n) {
   width <- ceiling(log2(n + 1))
-  FUN <- function(i) GA::decimal2binary(i, width)
-  return(unlist(lapply(x, FUN)))
+  return(unlist(lapply(x, function(i) {
+    GA::decimal2binary(i, width)
+  })))
 }
 
 #' @rdname EncodeChromosome
@@ -289,6 +312,7 @@ EncodeChromosome <- function(x, n) {
 
 DecodeChromosome <- function(y, n) {
   width <- ceiling(log2(n + 1))
-  FUN <- function(i) GA::binary2decimal(y[i:(i + width - 1L)])
-  return(vapply(seq(1, length(y), by=width), FUN, 0))
+  return(vapply(seq(1, length(y), by=width), function(i) {
+    GA::binary2decimal(y[i:(i + width - 1L)])
+  }, 0))
 }

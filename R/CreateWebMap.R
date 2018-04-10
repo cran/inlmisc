@@ -5,8 +5,13 @@
 #' Information about the content of these base maps can be found within the
 #' \href{https://viewer.nationalmap.gov/help/3.0\%20TNM\%20Base\%20Maps.htm}{TNM Base Maps} document.
 #'
+#' @param maps 'character'.
+#'   Vector of TNM base maps to include in the web map.
+#'   Possible maps include \code{"Topo"}, \code{"Imagery"},
+#'   \code{"Imagery Topo"}, \code{"Hydrography"}, and \code{"Hill Shade"}.
+#'   All base maps are included by default.
 #' @param ...
-#'   Leaflet options to be passed to the \code{\link[leaflet]{leafletOptions}} function.
+#'   Arguments to be passed to the \code{\link[leaflet]{leaflet}} function.
 #' @param collapsed 'logical'.
 #'   If true, the layers control will be rendered as an icon that expands when hovered over.
 #'
@@ -17,11 +22,14 @@
 #'   \href{https://rstudio.github.io/leaflet/}{Leaflet for R}.
 #'
 #' @return Returns a 'leaflet' Hypertext Markup Language (HTML) widget object with TNM base maps.
-#'   See example for instructions on how to add additional graphic layers to the map widget.
+#'   See example for instructions on how to add additional graphic layers
+#'   (such as points, lines, and polygons) to the map widget.
+#'   Graphic layers added to the web map must be in latitude and longitude using WGS 84
+#'   (also known as \href{https://epsg.io/4326}{EPSG:4326}).
 #'
 #' @author J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center
 #'
-#' @seealso \code{\link[leaflet]{addWMSTiles}}
+#' @seealso \code{\link{AddWebMapElements}}
 #'
 #' @keywords hplot
 #'
@@ -31,84 +39,55 @@
 #' map <- CreateWebMap()
 #' lng <- c(-112.049705, -122.171257, -77.367458, -149.803565, -80.248344)
 #' lat <- c(43.517810, 37.456526, 38.947206, 61.187905, 26.080860)
-#' pop <- c("ID", "CA", "VA", "AK", "FL")
-#' map <- leaflet::addMarkers(map, lng, lat, popup = pop)
+#' map <- leaflet::addMarkers(map, lng, lat)
 #' map
 #'
 
-CreateWebMap <- function(..., collapsed=TRUE) {
+CreateWebMap <- function(maps, ..., collapsed=TRUE) {
 
-  checkmate::assertLogical(collapsed, len=1, any.missing=FALSE)
+  checkmate::assertFlag(collapsed)
 
-  # establish layers
+  # establish base map layers
   basemap <- c("Topo"          = "USGSTopo",
                "Imagery"       = "USGSImageryOnly",
                "Imagery Topo"  = "USGSImageryTopo",
                "Hydrography"   = "USGSHydroCached",
-               "Shaded Relief" = "USGSShadedReliefOnly")
+               "Hill Shade"    = "USGSShadedReliefOnly")
+  if (!missing(maps)) {
+    checkmate::assertSubset(maps, names(basemap), empty.ok=FALSE)
+    basemap <- basemap[maps]
+  }
 
   # initialize map widget
-  map <- leaflet::leaflet(options=leaflet::leafletOptions(...))
+  map <- leaflet::leaflet(...)
 
   # specify attribution
-  att <- paste("<a href='https://www.usgs.gov/'>U.S. Geological Survey</a> |",
-               "<a href='https://www.usgs.gov/laws/policies_notices.html'>Policies</a>")
+  att <- paste("<a href='https://www.usgs.gov/' title='United States Geological Survey' target='_blank'>USGS</a> |",
+               "<a href='https://www.usgs.gov/laws/policies_notices.html' title='USGS policies and notices' target='_blank'>Policies</a>")
 
-  # add tiled basemaps
-  url <- .GetURL(basemap)
+  # construct url for map tiles
+  GetURL <- function(service, host="basemap.nationalmap.gov") {
+    sprintf("https://%s/arcgis/services/%s/MapServer/WmsServer?", host, service)
+  }
+
+  # add tiled base maps
+  url <- GetURL(basemap)
   opt <- leaflet::WMSTileOptions(version="1.3.0", maxNativeZoom=15)
   for (i in seq_along(basemap)) {
     map <- leaflet::addWMSTiles(map, url[i], group=names(basemap)[i], attribution=att,
                                 options=opt, layers="0")
   }
 
-  # add control feature
-  opt <- leaflet::layersControlOptions(collapsed=collapsed)
-  map <- leaflet::addLayersControl(map, position="topleft",
-                                   baseGroups=names(basemap), options=opt)
+  # add basemap control feature
+  if (length(basemap) > 1) {
+    opt <- leaflet::layersControlOptions(collapsed=collapsed)
+    map <- leaflet::addLayersControl(map, position="topright",
+                                     baseGroups=names(basemap), options=opt)
+  }
 
   # add scale bar
   map <- leaflet::addScaleBar(map, position="bottomleft")
 
-  # add mouse coordinates and zoom level;
-  # derived from mapview::addMouseCoordinates function, accessed on 2017-07-17.
-  lab <- paste("' longitude: ' + (e.latlng.lng).toFixed(5) +",
-               "' | latitude: ' + (e.latlng.lat).toFixed(5) +",
-               "' | zoom: ' + map.getZoom() + ' '")
-  js <- sprintf("function(el, x, data) {
-                   var map = this;
-                   function addElement () {
-                     var newDiv = $(document.createElement('div'));
-                     $(el).append(newDiv);
-                     newDiv.addClass('lnlt');
-                     newDiv.css({
-                       'position': 'relative',
-                       'bottomleft':  '0px',
-                       'background-color': 'rgba(255, 255, 255, 0.7)',
-                       'box-shadow': '0 0 2px #bbb',
-                       'background-clip': 'padding-box',
-                       'margin': '0',
-                       'text-align': 'center',
-                       'color': '#333',
-                       'font': '9px/1.5 \"Helvetica Neue\", Arial, Helvetica, sans-serif',
-                     });
-                     return newDiv;
-                   }
-                   var lnlt = $(el).find('.lnlt');
-                   if(!lnlt.length) {
-                     lnlt = addElement();
-                     map.on('mousemove', function (e) {
-                       lnlt.text(%s);
-                     })
-                   };
-                 }", lab)
-  map <- htmlwidgets::onRender(map, gsub(" +", " ", js))
-
   # return html widget
   return(map)
-}
-
-
-.GetURL <- function(service, host="basemap.nationalmap.gov") {
-  sprintf("https://%s/arcgis/services/%s/MapServer/WmsServer?", host, service)
 }
