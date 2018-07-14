@@ -53,13 +53,11 @@
 #' @name AddWebMapElements
 #'
 #' @examples
-#' df <- maps::us.cities
-#' spdf <- sp::SpatialPointsDataFrame(df[, c("long", "lat")], data = df,
-#'                                    proj4string = sp::CRS("+init=epsg:4326"))
+#' city <- rgdal::readOGR(system.file("extdata/city.geojson", package = "inlmisc")[1])
 #' opt <- leaflet::markerClusterOptions(showCoverageOnHover = FALSE)
 #' map <- CreateWebMap("Topo")
 #' map <- leaflet::addMarkers(map, label = ~name, popup = ~name, clusterOptions = opt,
-#'                            clusterId = "cluster", group = "marker", data = spdf)
+#'                            clusterId = "cluster", group = "marker", data = city)
 #' map <- AddHomeButton(map)
 #' map <- AddClusterButton(map, clusterId = "cluster")
 #' map <- AddSearchButton(map, group = "marker", zoom = 15,
@@ -68,11 +66,11 @@
 #'
 #' labels <- c("Non-capital", "Capital")
 #' colors <- c("green", "red")
-#' fillColor <- colors[(spdf@data$capital > 0) + 1L]
+#' fillColor <- colors[(city@data$capital > 0) + 1L]
 #' map <- CreateWebMap("Topo")
 #' map <- leaflet::addCircleMarkers(map, radius = 6, color = "white", weight = 1,
 #'                                  opacity = 1, fillColor = fillColor, fillOpacity = 1,
-#'                                  fill = TRUE, data = spdf)
+#'                                  fill = TRUE, data = city)
 #' map <- AddLegend(map, labels = labels, colors = colors, radius = 5,
 #'                  opacity = 1, symbol = "circle")
 #' map
@@ -181,13 +179,13 @@ AddSearchButton <- function(map, group, propertyName="label", zoom=NULL,
 }
 
 .SearchDependencies <- function() {
-  src <- system.file("htmlwidgets/plugins/leaflet-search", package="inlmisc")
-  css <- if (utils::packageVersion("leaflet") < 2) "leaflet-search-old.css" else "leaflet-search.css"
   list(htmltools::htmlDependency(name="leaflet-search",
-                                 version="2.4.0",
-                                 src=src,
-                                 script=c("leaflet-search.min.js", "leaflet-search-binding.js"),
-                                 stylesheet=css))
+                                 version="2.8.0",
+                                 src=system.file("htmlwidgets/plugins/leaflet-search", 
+                                                 package="inlmisc"),
+                                 script=c("leaflet-search.min.js", 
+                                          "leaflet-search-binding.js"),
+                                 stylesheet="leaflet-search.min.css"))
 }
 
 

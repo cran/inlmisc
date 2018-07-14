@@ -6,8 +6,8 @@
 \usage{
 AddInsetMap(p, col = c("#D8D8D8", "#BFA76F"), main.label = list(label = NA,
   adj = NULL), sub.label = list(label = NA, adj = NULL),
-  loc = c("bottomleft", "topleft", "topright", "bottomright"), inset = 0.02,
-  width = NULL)
+  loc = c("bottomleft", "topleft", "topright", "bottomright", "center"),
+  inset = 0.02, width = NULL, e = NULL, bty = c("o", "n"))
 }
 \arguments{
 \item{p}{'SpatialPolygons'.
@@ -25,7 +25,7 @@ Identical to the \code{main.label} argument but for the plot extent rectangle.}
 
 \item{loc}{'character'.
 Position of the inset map in the main plot region:
-"bottomleft", "topleft", "topright", or "bottomright" to denote scale location.}
+"bottomleft", "topleft", "topright", "bottomright", or "center" to denote scale location.}
 
 \item{inset}{'numeric'.
 Inset distance(s) from the margins as a fraction of the main plot region.
@@ -33,6 +33,14 @@ Defaults to 2 percent of the axis range.}
 
 \item{width}{'numeric'.
 Width of the inset map in inches.}
+
+\item{e}{'numeric'.
+Vector of length 4 describing the extent of the smaller axis-aligned rectangle (relative to the larger map polygon).
+Defaults to the user coordinate extent of the main plot region, see \code{par("usr")}.}
+
+\item{bty}{'character'.
+The type of box to be drawn about the inset map.
+A value of \code{"o"} (the default) results in a box and a value of \code{"n"} supresses the box.}
 }
 \value{
 Used for the side-effect of a inset map drawn on the current graphics device.
@@ -40,20 +48,14 @@ Used for the side-effect of a inset map drawn on the current graphics device.
 \description{
 This function can be used to add an inset map to a plot.
 }
-\details{
-The smaller axis-aligned rectangle (relative to the larger map polygon) is defined by
-  the user coordinate extent of the main plot region, see \code{par("usr")}.
-}
 \examples{
-nc <- rgdal::readOGR(system.file("shapes/sids.shp", package = "maptools")[1],
-                     p4s = "+proj=longlat +datum=NAD27")
-bb <- sp::bbox(nc[100, ])
-xlim <- grDevices::extendrange(bb["x", ])
-ylim <- grDevices::extendrange(bb["y", ])
-PlotMap(raster::crs(nc), xlim = xlim, ylim = ylim, dms.tick = TRUE)
-sp::plot(nc, add = TRUE)
-AddInsetMap(nc, width = 3, main.label = list("North Carolina", adj = c(1.8, 3)),
-            sub.label = list("Map area", adj = c(1.5, 0.5)), loc = "topright")
+file <- system.file("extdata/county.geojson", package = "inlmisc")[1]
+county <- rgdal::readOGR(file)
+ext <- c(-113.4005, -112.2764, 43.30, 44.11)
+PlotMap(county, xlim = ext[1:2], ylim = ext[3:4], dms.tick = TRUE)
+sp::plot(county, add = TRUE)
+inlmisc::AddInsetMap(county, width = 2, main.label = list("IDAHO", adj = c(0, -10)),
+                     sub.label=list("Map area", adj = c(0, -4)), loc = "topright")
 
 }
 \seealso{

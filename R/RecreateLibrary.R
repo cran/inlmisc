@@ -399,11 +399,12 @@ SavePackageDetails <- function(file="R-packages.tsv", lib=.libPaths(), pkg=NULL)
 #' @export
 #'
 #' @examples
-#' IsPackageInstalled(c("inlmisc", "csimlni", "colorspace"))
+#' IsPackageInstalled(c("inlmisc", "csimlni", "viridisLite"))
 #'
 
 IsPackageInstalled <- function(x, lib=.libPaths()) {
-  return(vapply(x, function(i) {
+  checkmate::assertCharacter(x, any.missing=FALSE, min.len=1)
+  return(vapply(unique(x), function(i) {
     system.file(package=i, lib.loc=lib) != ""
   }, TRUE))
 }

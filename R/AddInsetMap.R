@@ -13,15 +13,18 @@
 #'   Identical to the \code{main.label} argument but for the plot extent rectangle.
 #' @param loc 'character'.
 #'   Position of the inset map in the main plot region:
-#'   "bottomleft", "topleft", "topright", or "bottomright" to denote scale location.
+#'   "bottomleft", "topleft", "topright", "bottomright", or "center" to denote scale location.
 #' @param inset 'numeric'.
 #'   Inset distance(s) from the margins as a fraction of the main plot region.
 #'   Defaults to 2 percent of the axis range.
 #' @param width 'numeric'.
 #'   Width of the inset map in inches.
-#'
-#' @details The smaller axis-aligned rectangle (relative to the larger map polygon) is defined by
-#'   the user coordinate extent of the main plot region, see \code{par("usr")}.
+#' @param e 'numeric'.
+#'   Vector of length 4 describing the extent of the smaller axis-aligned rectangle (relative to the larger map polygon).
+#'   Defaults to the user coordinate extent of the main plot region, see \code{par("usr")}.
+#' @param bty 'character'.
+#'   The type of box to be drawn about the inset map.
+#'   A value of \code{"o"} (the default) results in a box and a value of \code{"n"} supresses the box.
 #'
 #' @return Used for the side-effect of a inset map drawn on the current graphics device.
 #'
@@ -34,40 +37,41 @@
 #' @export
 #'
 #' @examples
-#' nc <- rgdal::readOGR(system.file("shapes/sids.shp", package = "maptools")[1],
-#'                      p4s = "+proj=longlat +datum=NAD27")
-#' bb <- sp::bbox(nc[100, ])
-#' xlim <- grDevices::extendrange(bb["x", ])
-#' ylim <- grDevices::extendrange(bb["y", ])
-#' PlotMap(raster::crs(nc), xlim = xlim, ylim = ylim, dms.tick = TRUE)
-#' sp::plot(nc, add = TRUE)
-#' AddInsetMap(nc, width = 3, main.label = list("North Carolina", adj = c(1.8, 3)),
-#'             sub.label = list("Map area", adj = c(1.5, 0.5)), loc = "topright")
+#' file <- system.file("extdata/county.geojson", package = "inlmisc")[1]
+#' county <- rgdal::readOGR(file)
+#' ext <- c(-113.4005, -112.2764, 43.30, 44.11)
+#' PlotMap(county, xlim = ext[1:2], ylim = ext[3:4], dms.tick = TRUE)
+#' sp::plot(county, add = TRUE)
+#' inlmisc::AddInsetMap(county, width = 2, main.label = list("IDAHO", adj = c(0, -10)),
+#'                      sub.label=list("Map area", adj = c(0, -4)), loc = "topright")
 #'
 
 AddInsetMap <- function(p, col=c("#D8D8D8", "#BFA76F"),
                         main.label=list(label=NA, adj=NULL),
                         sub.label=list(label=NA, adj=NULL),
-                        loc=c("bottomleft", "topleft", "topright", "bottomright"),
-                        inset=0.02, width=NULL) {
+                        loc=c("bottomleft", "topleft", "topright", "bottomright", "center"),
+                        inset=0.02, width=NULL, e=NULL, bty=c("o", "n")) {
+
+  checkmate::assertClass(p, "SpatialPolygons")
+  checkmate::assertCharacter(col, any.missing=FALSE, len=2)
+  checkmate::assertList(main.label)
+  checkmate::assertList(sub.label)
+  loc <- match.arg(loc)
+  checkmate::assertNumeric(inset, finite=TRUE, min.len=1, max.len=2)
+  checkmate::assertNumber(width, finite=TRUE, null.ok=TRUE)
+  checkmate::assertNumeric(e, finite=TRUE, len=4, null.ok=TRUE)
+  bty <- match.arg(bty)
 
   op <- graphics::par(no.readonly=TRUE)
   on.exit(graphics::par(op))
 
-  loc <- match.arg(loc)
-
-  if (!inherits(p, c("SpatialPolygons", "SpatialPolygonsDataFrame")))
-    stop("polygon 'p' is the incorrect class")
-
   usr <- graphics::par("usr")
-  crds <- cbind(c(usr[1:2], usr[2:1], usr[1]),
-                c(rep(usr[3], 2), rep(usr[4], 2), usr[3]))
-  b <- sp::SpatialPolygons(list(sp::Polygons(list(sp::Polygon(crds)), "bbox")),
-                           proj4string=raster::crs(p))
 
+  if (is.null(e)) e <- usr
+  crds <- cbind(c(e[1:2], e[2:1], e[1]), c(rep(e[3], 2), rep(e[4], 2), e[3]))
+  b <- sp::SpatialPolygons(list(sp::Polygons(list(sp::Polygon(crds)), "bbox")), proj4string=raster::crs(p))
   if (length(rgeos::gIntersection(p, b)) == 0)
     stop("user coordinates of the plotting region do not intersect polygon")
-
   ext <- raster::extent(rgeos::gUnion(p, b))
 
   if (is.null(width)) {
@@ -82,19 +86,22 @@ AddInsetMap <- function(p, col=c("#D8D8D8", "#BFA76F"),
   pady <- inset[2] * diff(usr[3:4])
 
   if (loc == "bottomleft") {
-    loc <- c(usr[1] + padx, usr[3] + pady)
+    xy <- c(usr[1] + padx, usr[3] + pady)
   } else if (loc == "topleft") {
-    loc <- c(usr[1] + padx, usr[4] - pady - dy)
+    xy <- c(usr[1] + padx, usr[4] - pady - dy)
   } else if (loc == "topright") {
-    loc <- c(usr[2] - padx - dx, usr[4] - pady - dy)
+    xy <- c(usr[2] - padx - dx, usr[4] - pady - dy)
   } else if (loc == "bottomright") {
-    loc <- c(usr[2] - padx - dx, usr[3] + pady)
+    xy <- c(usr[2] - padx - dx, usr[3] + pady)
+  } else if (loc == "center")  {
+    xy <- c(usr[1] + diff(usr[1:2]) / 2 - dx / 2,
+            usr[3] + diff(usr[3:4]) / 2 - dy / 2)
   }
 
-  graphics::rect(loc[1], loc[2], loc[1] + dx, loc[2] + dy, col="#FFFFFFE7", border=NA)
+  graphics::rect(xy[1], xy[2], xy[1] + dx, xy[2] + dy, col="#FFFFFFE7", border=NA)
 
-  plt <- c(graphics::grconvertX(c(loc[1], loc[1] + dx), "user", "nfc"),
-           graphics::grconvertY(c(loc[2], loc[2] + dy), "user", "nfc"))
+  plt <- c(graphics::grconvertX(c(xy[1], xy[1] + dx), "user", "nfc"),
+           graphics::grconvertY(c(xy[2], xy[2] + dy), "user", "nfc"))
   graphics::par(plt=plt, bg="#FFFFFFCC", new=TRUE)
 
   xlim <- range(ext[1:2])
@@ -114,7 +121,7 @@ AddInsetMap <- function(p, col=c("#D8D8D8", "#BFA76F"),
     graphics::text(x[1], x[2], labels=sub.label[[1]], adj=sub.label$adj, cex=0.6)
   }
 
-  graphics::box(lwd=0.5)
+  if (bty != "n") graphics::box(lwd=0.5)
 
   invisible(NULL)
 }

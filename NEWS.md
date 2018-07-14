@@ -1,3 +1,34 @@
+# inlmisc 0.4.2
+
+- In `GetTolColors` function, revise color schemes based on issue 3.0 of technical note.
+
+- In `PlotGraph` function, improve placement of tick marks.
+
+- Remove **colorspace** from suggested packages and replace with **viridisLite**.
+
+- In `ToScientific` function, better identify whether to print numeric values in fixed or scientific notation.
+
+- In `AddScaleBar` function, non-backward compatible argument changes and formatting improvements.
+
+- In `PlotGraph` function: fix bug that resulted in an error when `type = "n"`; and
+  add `main` argument for placing a title at the top of the plot.
+
+- Make **gstat** and **roxygen2** suggested packages.
+
+- Remove **httr**, **maps**, and **maptools** from suggested packages.
+
+- In *misc/preamble.tex* file: tidy code;
+  include fix for spacing after number in List of Figures and List of Tables;
+  remove **helvet** package; and add **float** package, provides the H float modifier option.
+
+- In `AddInsetMap`: add an optional `e` argument, a numeric vector describing
+  the extent of the smaller axis-aligned rectangle; add "center" option for `loc` argument; and
+  add `bty` argument, determines if a box is to be drawn around the inset map.
+
+- Update *leaflet-search.min.js* and *leaflet-search.min.css* files to version 2.8.0.
+
+- Add `PrintFigure` function, used to print the LaTeX code associated with a figure.
+
 # inlmisc 0.4.0
 
 - Add `GetTolColors` function, used to access color palettes by Paul Tol.
@@ -22,7 +53,7 @@
 
 - In `ToScientific` function, add `big.mark` argument with default value of `","`.
 
-- In `ToScientific` function, fix bug that formated `0` as `NA` when `type = "plotmath"`.
+- In `ToScientific` function, fix bug that formatted `0` as `NA` when `type = "plotmath"`.
 
 - In `CreateWebMap` function, pass `...` arguments to `leaflet::leaflet` function,
   these arguments were previously passed to the `leaflet::leafletOptions` function.
@@ -42,7 +73,7 @@
 
 - In `PlotMap` function, fix bug introduced by previous fix of raster range calculation.
 
-- Made `AddCertificate` an 'internal' function.
+- Made `AddCertificate` an internal function.
 
 - Add argument checks using **checkmate** package.
 
@@ -108,7 +139,7 @@
 
 - Add **bm** and **makecell** packages to LaTeX preamble.
 
-- Changes in `PlotGraph` function inlclude:
+- Changes in `PlotGraph` function include:
   Add option for plotting interval censored data by specifying `type = "i"`.
   Select box-and-whisker plot using `type = "w"`, was previously `type = "box"`.
   Default for `seq.date.by` argument changed from `"year"` to `NULL`.
@@ -156,7 +187,7 @@
 - In `PlotMap` and `PlotCrossSection` functions, fix layout so color key dimensions don't change on resize.
 
 - In `PlotMap` function, add `file.close` argument.
-  A logical that idicates if the graphics device driver should be shut down when the function exits.
+  A logical that indicates if the graphics device driver should be shut down when the function exits.
 
 - In `AddBubbles` function, allow `z` argument to be an object of class `factor`.
 
@@ -191,7 +222,7 @@
 
 - Change NEWS file to markdown format.
 
-- Remove "misc" folder from ".Rbuildignore", adds the "misc/preamble.tex" file back to the package build.
+- Remove *misc* folder from *.Rbuildignore* file, adds the *misc/preamble.tex* file back to the package build.
 
 # inlmisc 0.2.1
 

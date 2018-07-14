@@ -156,34 +156,47 @@
 #' levels(r) <- rat
 #' PlotMap(r)
 #'
+#' data(meuse, meuse.grid, package = "sp")
+#' sp::coordinates(meuse.grid) <- ~x+y
+#' sp::proj4string(meuse.grid) <- sp::CRS("+init=epsg:28992")
+#' sp::gridded(meuse.grid) <- TRUE
+#' meuse.grid <- raster::raster(meuse.grid, layer = "soil")
+#' model <- gstat::gstat(id = "zinc", formula = zinc~1, locations = ~x+y, data = meuse)
+#' r <- raster::interpolate(meuse.grid, model)
+#' r <- raster::mask(r, meuse.grid)
+#' Pal <- function(n) viridisLite::viridis(n, begin = 0.2)
+#' breaks <- seq(0, 2000, by = 200)
+#' credit <- paste("Data collected in a flood plain of the river Meuse,",
+#'                 "near the village of Stein (Netherlands),",
+#'                 "\nand iterpolated on a grid with 40-meter by 40-meter spacing",
+#'                 "using inverse distance weighting.")
+#' PlotMap(r, breaks = breaks, pal = Pal, dms.tick = TRUE, bg.lines = TRUE,
+#'         contour.lines = list(col = "#1F1F1F"), credit = credit,
+#'         draw.key = FALSE, simplify = 0)
+#' AddScaleBar(unit = c("KILOMETER", "MILES"), conv.fact = c(0.001, 0.000621371),
+#'             loc = "bottomright", offset = c(-0.4, 0.1))
+#' AddGradientLegend(breaks, Pal, at = breaks,
+#'                   title = "Topsoil zinc\nconcentration\n(ppm)", loc = "topleft",
+#'                   inset = c(0.05, 0.1), strip.dim = c(2, 20))
+#'
 #' m <- t(datasets::volcano)[61:1, ]
 #' x <- seq(from = 6478705, length.out = 87, by = 10)
 #' y <- seq(from = 2667405, length.out = 61, by = 10)
 #' r <- raster::raster(m, xmn = min(x), xmx = max(x), ymn = min(y), ymx = max(y),
 #'                     crs = "+init=epsg:27200")
-#' PlotMap(r, pal = terrain.colors, scale.loc = "bottomright",
-#'         explanation = "Topographic information on Auckland's Maunga Whau volcano.",
-#'         credit = "Digitized from a topographic map by Ross Ihaka on a 10-m by 10-m grid.",
-#'         shade = list(alpha = 0.3), contour.lines = list(col = "#1F1F1F"),
-#'         useRaster = TRUE)
+#' credit <- paste("Digitized from a topographic map by Ross Ihaka",
+#'                 "on a grid with 10-meter by 10-meter spacing.")
+#' explanation <- "Elevation on Auckland's Maunga Whau volcano, in meters."
+#' PlotMap(r, extend.z = TRUE, pal = terrain.colors, scale.loc = "bottomright",
+#'         explanation = explanation, credit = credit, shade = list(alpha = 0.3),
+#'         contour.lines = list(col = "#1F1F1F"), useRaster = TRUE)
 #'
-#' r <- raster::raster(system.file("external/test.grd", package = "raster"))
-#' Pal <- colorspace::rainbow_hcl
-#' breaks <- seq(0, 2000, by = 200)
-#' PlotMap(r, breaks = breaks, pal = Pal, dms.tick = TRUE, bg.lines = TRUE,
-#'         scale.loc = "bottomright", contour.lines = list(col = "#1F1F1F"),
-#'         draw.key = FALSE, simplify = 0)
-#' AddGradientLegend(breaks, Pal, at = breaks, title = "Explanation", loc = "topleft",
-#'                   inset = c(0.1, 0.1), strip.dim = c(2, 20))
-#'
-#' out <- PlotMap(r, dms.tick = TRUE, file = "Rplots1.pdf")
+#' out <- PlotMap(r, file = "Rplots1.pdf")
 #' print(out)
 #'
 #' pdf(file = "Rplots2.pdf", width = out$din[1], height = out$din[2])
-#' PlotMap(r, dms.tick = TRUE)
-#' data(meuse, package = "sp")
-#' sp::coordinates(meuse) = ~ x + y
-#' points(meuse)
+#' PlotMap(r)
+#' raster::contour(r, col = "white", add = TRUE)
 #' dev.off()
 #'
 #' file.remove(c("Rplots1.pdf", "Rplots2.pdf"))
@@ -285,8 +298,8 @@ PlotMap <- function(r, layer=1, att=NULL, n=NULL, breaks=NULL,
   }
 
   if (!all(is.na(r[]))) r <- raster::trim(r)
-  xran <- bbox(r)[1, ]
-  yran <- bbox(r)[2, ]
+  xran <- sp::bbox(r)[1, ]
+  yran <- sp::bbox(r)[2, ]
   if (extend.xy) {
     default.xl <- range(pretty(xran))
     default.yl <- range(pretty(yran))
@@ -371,11 +384,15 @@ PlotMap <- function(r, layer=1, att=NULL, n=NULL, breaks=NULL,
     if (length(col) != n) stop("number of specified colors is incorrect")
     cols <- col
   } else {
-    if (is.function(pal)) {
+    if (n == 0) {
+      cols <- as.character()
+    } else if (is.function(pal)) {
       cols <- pal(n)
+    } else if (raster::is.factor(r)) {
+      cols <- GetTolColors(n)
     } else {
-      if (requireNamespace("colorspace", quietly=TRUE))
-        cols <- colorspace::rainbow_hcl(n, start=0.0, end=(360 * (n - 1) / n) * 0.8)
+      if (requireNamespace("viridisLite", quietly=TRUE))
+        cols <- viridisLite::viridis(n)
       else
         cols <- grDevices::rainbow(n, start=0.0, end=0.8)
     }
@@ -384,10 +401,9 @@ PlotMap <- function(r, layer=1, att=NULL, n=NULL, breaks=NULL,
 
   # plot color key
   if (draw.key & n > 0) {
-    is.categorical <- raster::is.factor(r)
     at <- if (is.null(labels$at)) at1 else labels$at
     if (is.null(labels$labels))
-      labels <- if (is.categorical) raster::levels(r)[[1]][, "att"] else TRUE
+      labels <- if (raster::is.factor(r)) raster::levels(r)[[1]][, "att"] else TRUE
     else
       labels <- labels$labels
     AddColorKey(mai=mai1, is.categorical=raster::is.factor(r),
@@ -422,8 +438,8 @@ PlotMap <- function(r, layer=1, att=NULL, n=NULL, breaks=NULL,
                                              c(xl[2], yl[2])))), ID="al4")
     sl <- sp::SpatialLines(al, proj4string=r@crs)
     sl.dd <- sp::spTransform(sl, sp::CRS("+init=epsg:4326"))
-    e.dd <- pretty(range(bbox(sl.dd)[1, ]))
-    n.dd <- pretty(range(bbox(sl.dd)[2, ]))
+    e.dd <- pretty(range(sp::bbox(sl.dd)[1, ]))
+    n.dd <- pretty(range(sp::bbox(sl.dd)[2, ]))
     grd.dd <- sp::gridlines(sl.dd, easts=e.dd, norths=n.dd, ndiscr=1000)
 
     pts.dd <- rgeos::gIntersection(sl.dd, grd.dd, byid=TRUE)
@@ -446,8 +462,9 @@ PlotMap <- function(r, layer=1, att=NULL, n=NULL, breaks=NULL,
     at2[[2]] <- pretty(yl)
     at2[[3]] <- at2[[1]]
     at2[[4]] <- at2[[2]]
-    xlabs <- prettyNum(at2[[1]], big.mark=",")
-    ylabs <- prettyNum(at2[[2]], big.mark=",")
+    scipen <- getOption("scipen", default=0)
+    xlabs <- ToScientific(at2[[1]], scipen=scipen, type="plotmath")
+    ylabs <- ToScientific(at2[[2]], scipen=scipen, type="plotmath")
     if (extend.xy) ylabs[length(ylabs)] <- ""
   }
 
@@ -498,7 +515,8 @@ PlotMap <- function(r, layer=1, att=NULL, n=NULL, breaks=NULL,
       rr <- r * zfact
       hs <- raster::hillShade(slope=raster::terrain(rr),
                               aspect=raster::terrain(rr, opt="aspect"),
-                              angle=angle, direction=direc)
+                              angle=angle,
+                              direction=direc)
       raster::image(hs, maxpixels=length(hs), useRaster=TRUE,
                     col=grDevices::grey(0:255 / 255, alpha=alpha), add=TRUE)
     }
@@ -576,10 +594,10 @@ PlotMap <- function(r, layer=1, att=NULL, n=NULL, breaks=NULL,
   }
 
   if (!is.null(scale.loc)) {
-    txt <- strsplit(proj4string(r), " ")[[1]]
+    txt <- strsplit(sp::proj4string(r), " ")[[1]]
     unit <- sub("^\\+units=", "", grep("^\\+units=", txt, value=TRUE))
-    lonlat <- "+proj=longlat" %in% txt
-    AddScaleBar(asp, unit, lonlat, scale.loc)
+    longlat <- "+proj=longlat" %in% txt
+    AddScaleBar(unit=unit, longlat=longlat, loc=scale.loc)
   }
 
   if (!is.null(arrow.loc)) .AddNorthArrow(arrow.loc, r@crs, cex)

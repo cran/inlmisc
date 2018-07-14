@@ -2,16 +2,26 @@
 % Please edit documentation in R/GetTolColors.R
 \name{GetTolColors}
 \alias{GetTolColors}
-\title{Color Palette for Qualitative Data}
+\title{Tol Color Palettes}
 \usage{
-GetTolColors(n, alpha = 1, plot = FALSE)
+GetTolColors(n, scheme = c("bright", "vibrant", "muted", "light", "rainbow"),
+  alpha = NULL, plot = FALSE)
 }
 \arguments{
 \item{n}{'integer'.
-Number of colors to be in the palette, the maximum is 21.}
+Number of colors to be in the palette, the maximum value is
+dependent on the specified color scheme.}
+
+\item{scheme}{'character'.
+Color scheme: select \code{"bright"}, \code{"vibrant"},
+\code{"muted"}, or \code{"light"} for qualitative colors; and
+\code{"rainbow"} for sequential colors.
+Where \code{n < 8} for \code{"bright"} and \code{"vibrant"},
+\code{n < 10} for \code{"muted"} and \code{"light"}, and
+\code{n < 24} for \code{"rainbow"}.}
 
 \item{alpha}{'numeric'.
-Alpha transparency, parameter values range from 0 (fully transparent) to 1 (fully opaque).
+Alpha transparency, values range from 0 (fully transparent) to 1 (fully opaque).
 Specify as \code{NULL} to exclude the alpha channel color component.}
 
 \item{plot}{'logical'.
@@ -19,21 +29,28 @@ Whether to display the color palette.}
 }
 \value{
 Returns a 'character' vector of length \code{n} with elements of 7 or 9 characters,
-  "#" followed by the red, blue, green, and optionally alpha values in hexadecimal.
+  \code{"#"} followed by the red, blue, green, and optionally alpha values in hexadecimal.
 }
 \description{
-This function creates a vector of \code{n} contiguous colors from color schemes by Paul Tol (2012).
+This function creates a vector of \code{n} colors from
+qualitative and sequential color schemes by Paul Tol (2018).
 }
 \examples{
-GetTolColors(7, plot = TRUE)
+op <- par(mfrow = c(5, 1), oma = c(0, 0, 0, 0), mai = c(0.4, 0, 0.4, 0))
+GetTolColors( 7, scheme = "bright",  plot = TRUE)
+GetTolColors( 7, scheme = "vibrant", plot = TRUE)
+GetTolColors( 9, scheme = "muted",   plot = TRUE)
+GetTolColors( 9, scheme = "light",   plot = TRUE)
+GetTolColors(23, scheme = "rainbow", plot = TRUE)
+par(op)
 
-GetTolColors(21, alpha = 0.85, plot = TRUE)
+GetTolColors(10, scheme = "rainbow", alpha = 0.5, plot = TRUE)
 
 }
 \references{
-Tol, Paul, 2012, Colour Schemes:
-  SRON Technical Note, doc. no. SRON/EPS/TN/09-002, issue 2.2, 16 p.,
-  accesed January 26, 2018 at \url{https://personal.sron.nl/~pault/colourschemes.pdf}.
+Tol, Paul, 2018, Colour Schemes:
+  SRON Technical Note, doc. no. SRON/EPS/TN/09-002, issue 3.0, 17 p.,
+  accessed July 18, 2018 at \url{https://personal.sron.nl/~pault/data/colourschemes.pdf}.
 }
 \author{
 J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center
