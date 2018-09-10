@@ -45,9 +45,18 @@
 #' @param bg 'character'.
 #'   Vector of background colors for the open plot symbols given by \code{pch = 21:25} as in \code{\link{points}}.
 #' @param fill 'character'.
-#'   Vector of fill colors for areas beneath (or above, direction towards 0) lines of \code{type = "l"} or \code{type = "s"}.
+#'   Used to create filled area plots. Specify
+#'   \code{"tozeroy"} to fill to zero on the \emph{y}-axis;
+#'   \code{"tominy"} to fill to the minimum \emph{y} value in the plotting region; and
+#'   \code{"tomaxy"} to fill to the maximum.
+#'   Requires plot \code{type = "l"}, \code{"b"}, and \code{"s"}.
+#' @param fillcolor 'character'.
+#'   Vector of colors for basic filled area plots.
+#'   Defaults to a half-transparent variant of the line color (\code{col}).
 #' @param pt.cex 'numeric'.
 #'   Expansion factor for the points.
+#' @param xpd 'logical'.
+#'   If false, point and (or) line symbols are clipped to the plot region.
 #' @param seq.date.by 'character', 'numeric', or 'difftime'.
 #'   The increment of the date sequence, see the \code{by} argument in the \code{\link{seq.Date}} function for all possible ways this can be specified.
 #' @param scientific 'logical'.
@@ -101,7 +110,7 @@
 #'
 #' y <- sapply(1:3, function(i) sample((1:100) + i * 100, n, replace = TRUE))
 #' m <- cbind(as.numeric(x), y)
-#' col <- GetTolColors(3)
+#' col <- GetTolColors(3, scheme = "bright")
 #' PlotGraph(m, xlab = "Number", ylab = "Random number", type = "b", pch = 15:17,
 #'           col = col, pt.cex = 0.9)
 #' legend("topright", LETTERS[1:3], inset = 0.05, col = col, lty = 1, pch = 15:17,
@@ -113,12 +122,15 @@
 #' PlotGraph(d, type = "i", ylim = c(0, 5))
 #'
 
-PlotGraph <- function(x, y, xlab, ylab, main, asp=NA, xlim=NULL, ylim=NULL,
+PlotGraph <- function(x, y, xlab, ylab, main=NULL, asp=NA, xlim=NULL, ylim=NULL,
                       xn=5, yn=5, ylog=FALSE, type="s", lty=1, lwd=1,
-                      pch=NULL, col=NULL, bg=NA, fill=NULL, pt.cex=1,
-                      seq.date.by=NULL, scientific=NA,
+                      pch=NULL, col=NULL, bg=NA, fill="none", fillcolor=NULL,
+                      pt.cex=1, xpd=FALSE, seq.date.by=NULL, scientific=NA,
                       conversion.factor=NULL, boxwex=0.8,
                       center.date.labels=FALSE, bg.polygon=NULL) {
+
+  fill <- match.arg(fill, c("none", "tozeroy", "tominy", "tomaxy"))
+  checkmate::assertCharacter(fillcolor, null.ok=TRUE)
 
   scientific <- as.logical(scientific)
   scientific <- rep(scientific, length.out=3)
@@ -140,11 +152,11 @@ PlotGraph <- function(x, y, xlab, ylab, main, asp=NA, xlim=NULL, ylim=NULL,
   }
 
   if (inherits(x, "Date")) {
-    if (!inherits(xlim, "Date")) xlim <- grDevices::extendrange(x)
+    if (!inherits(xlim, "Date")) xlim <- range(x, na.rm=TRUE)
     if (is.null(seq.date.by))
       xat <- seq(xlim[1], xlim[2], length.out=xn)
     else
-      xat <- seq(xlim[1], xlim[2], seq.date.by)
+      xat <- seq(xlim[1], xlim[2], by=seq.date.by)
   } else if (inherits(x, c("character", "factor"))) {
     x <- seq_along(x)
     xat <- x
@@ -177,16 +189,23 @@ PlotGraph <- function(x, y, xlab, ylab, main, asp=NA, xlim=NULL, ylim=NULL,
   }
 
   n <- ifelse(type == "i", 1, ncol(y))
-  if (!is.character(col) && !is.logical(col))
-    col <- if (is.function(col)) col(n) else grDevices::rainbow(n, start=0.0, end=0.8)
+  if (!is.character(col) && !is.logical(col)) {
+    if (is.function(col)) {
+      col <- col(n)
+    } else {
+      scheme <- if (n > 7) "smooth rainbow" else "bright"
+      col <- GetTolColors(n, scheme=scheme)
+    }
+  }
+
   lty <- rep_len(lty, length.out=n)
   lwd <- rep_len(lwd, length.out=n)
 
   mar <- c(2.3, 4.1, 1.5, 4.1)
-  if (missing(main)) mar[3] <- mar[3] - 1
+  if (is.null(main)) mar[3] <- mar[3] - 1
   if (is.null(conversion.factor)) mar[4] <- mar[4] - 2
   mgp <- c(3.2, 0.2, 0)  # cumulative axis margin line: title, labels, and line
-  op <- graphics::par(mar=mar, mgp=mgp)
+  graphics::par(mar=mar, mgp=mgp, xpd=xpd)
   line.in.inches <- (graphics::par("mai") / graphics::par("mar"))[2]
 
   graphics::plot.new()
@@ -203,12 +222,13 @@ PlotGraph <- function(x, y, xlab, ylab, main, asp=NA, xlim=NULL, ylim=NULL,
     graphics::polygon(bg.polygon$x, col=bg.col, border=NA)
   }
 
-  graphics::abline(v=xat, col="lightgrey", lwd=0.5)
-  graphics::abline(h=yat, col="lightgrey", lwd=0.5)
+  graphics::abline(v=xat, col="lightgrey", lwd=0.5, xpd=FALSE)
+  graphics::abline(h=yat, col="lightgrey", lwd=0.5, xpd=FALSE)
 
-  if (type %in% c("l", "s") & is.character(fill)) {
+  if (type %in% c("l", "b", "s") && fill != "none") {
+    if (is.null(fillcolor))
+      fillcolor <- grDevices::adjustcolor(col, alpha.f=0.5)
     for (i in seq_len(ncol(y))) {
-      if (is.na(fill[i])) next
       xx <- as.numeric(x)
       yy <- as.numeric(y[, i])
       grp <- .GetSegmentGroup(yy)
@@ -227,21 +247,25 @@ PlotGraph <- function(x, y, xlab, ylab, main, asp=NA, xlim=NULL, ylim=NULL,
         }
         xxx <- c(xxx, utils::tail(xxx, 1), xxx[1])
         ylim <- sort(graphics::par("usr")[3:4])
-        ymin <- if (ylim[1] < 0 & ylim[2] > 0) 0 else ylim[which.min(abs(ylim))]
+        if (fill == "tozeroy") {
+          ymin <- 0
+        } else if (fill == "tominy") {
+          ymin <- ylim[1]
+        } else if (fill == "tomaxy") {
+          ymin <- ylim[2]
+        }
         yyy <- c(yyy, rep(ymin, 2))
-        graphics::polygon(xxx, yyy, col=fill[i], border=NA)
+        graphics::polygon(xxx, yyy, col=fillcolor[i], border=NA, xpd=FALSE)
       }
     }
   }
 
   if (inherits(x, "Date")) {
     if (center.date.labels) {
-
       if (utils::tail(xat, 1) < xlim[2])
         at <- xat + diff(c(xat, xlim[2])) / 2
       else
         at <- utils::head(xat, -1) + diff(xat) / 2
-
       graphics::axis.Date(1, at=xat, tcl=tcl, labels=FALSE, lwd=-1, lwd.ticks=0.5)
       graphics::axis.Date(1, at=at, tcl=0, cex.axis=cex, lwd=-1)
     } else {
@@ -292,7 +316,7 @@ PlotGraph <- function(x, y, xlab, ylab, main, asp=NA, xlim=NULL, ylim=NULL,
                 graphics::par("mgp")[2]
     graphics::title(ylab=ylab[1], cex.lab=cex, line=mar.line)
   }
-  if (!missing(main)) graphics::title(main=list(main, cex=cex, font=1), line=0.5)
+  if (!is.null(main)) graphics::title(main=list(main, cex=cex, font=1), line=0.5)
 
   if (is.null(conversion.factor)) {
     graphics::axis(4, at=yat, tcl=tcl, lwd=-1, lwd.ticks=0.5, labels=FALSE)
@@ -332,14 +356,14 @@ PlotGraph <- function(x, y, xlab, ylab, main, asp=NA, xlim=NULL, ylim=NULL,
   x <- x[is.x]
   y <- y[is.x, , drop=FALSE]
   y[y < ylim[1] & y > ylim[2]] <- NA
-  
+
   # box-and-whisker plot
-  if (type %in% c("w", "box")) {  
+  if (type %in% c("w", "box")) {
     graphics::boxplot(y, xaxt="n", yaxt="n", range=0, varwidth=TRUE, boxwex=boxwex,
                       col=col, border="#333333", add=TRUE, at=x)
-  
+
   # interval censored plot
-  } else if (type == "i") {  
+  } else if (type == "i") {
     arg <- list(length=0.015, angle=90, lwd=lwd, col=col)
     is <- is.na(y[, 1]) & !is.na(y[, 2])  # left censored
     if (any(is)) {
@@ -368,9 +392,9 @@ PlotGraph <- function(x, y, xlab, ylab, main, asp=NA, xlim=NULL, ylim=NULL,
       y0 <- y[is, 1]
       graphics::points(x0, y0, pch=pch, col=col, bg=bg, cex=pt.cex)
     }
-  
+
   # stair steps plot
-  } else if (type == "s") {  
+  } else if (type == "s") {
     for (i in seq_len(ncol(y))) {
       xx <- as.numeric(x)
       yy <- as.numeric(y[, i])
