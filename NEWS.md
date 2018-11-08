@@ -1,3 +1,44 @@
+# inlmisc 0.4.4
+
+- Add `BuildVignettes` function, used to build package vignettes.
+
+- In `SummariseBudget` function, improve memory management.
+
+- Change package imports by adding **data.table** and removing **dplyr**.
+
+- Add `SetHinge` function, used to specify a hinge location in a color palette.
+
+- In `PrintTable` function: `d` argument can be of class 'matrix'; and
+  a default caption is no longer added when `title` and `headnotes` arguments are not specified.
+
+- Tidy help documentation
+
+- Add `GetRegionOfInterest` function, used to calculate the region of interest from spatial points.
+
+- In `FindOptimalSubset` function: improve matrix construction of `suggestions`;
+  change calculation of number of bits in a number.
+
+- In `AddColorKey` function, rearrange order of arguments.
+
+- In `PlotCrossSection` function: add `bend.label` argument, used to
+  place labels at top of the bend-in-section lines;
+  change default value of `bg.col` argument from `"#FFFFFFD8"` to `NULL`,
+  and for `scale.loc` argument from `"bottom"` to `NULL`;
+  make font/line color darker for section breaks and features.
+
+- Rename `GetTolColors` function to `GetColors`.
+  Add additional color schemes;
+  replace `start` and `end` arguments with `stops`, a vector of length 2;
+  change `blind` argument option from `"monochromacy"` to `"monochrome"`;
+  return a variant of the `GetColors` function when argument `n` is unspecified.
+
+- For leaflet-search plugin, change version from `2.8.0` to `2.9.6` and tidy wrapper functions.
+
+- In `CreateWebMap` function, add `service` argument for specifying
+  the mapping service to use for accessing base-map tiles.
+
+- Change required R version from `>= 3.2.0` to `>= 3.4.0`.
+
 # inlmisc 0.4.3
 
 - Add `AddNorthArrow` function, was previously defined as an internal function.
@@ -128,14 +169,16 @@
   transform coordinate reference system (CRS) of `ply` argument to match the CRS of the `grd` argument; and
   add `zlim` argument, a limit on the attribute variable.
 
-- In `ToScientific` function, add arguments `scipen`, `delimiter`, and `...`; and rename `lab.type` argument to `type`.
+- In `ToScientific` function, add arguments `scipen`, `delimiter`, and `...`;
+  and rename `lab.type` argument to `type`.
   Code in place for backwards compatibility.
 
 # inlmisc 0.3.2
 
 - In `RecreateLibrary` and `SavePackageDetails` functions, add support for *gzip* file compression.
 
-- In `SavePackageDetails` function, fix bug that results in an 'invalid cross-device link' error on some flavor's of R.
+- In `SavePackageDetails` function, fix bug that results in
+  an 'invalid cross-device link' error on some flavor's of R.
 
 # inlmisc 0.3.1
 
@@ -172,14 +215,16 @@
   Select box-and-whisker plot using `type = "w"`, was previously `type = "box"`.
   Default for `seq.date.by` argument changed from `"year"` to `NULL`.
 
-- Add `CreateWebMap` function, creates a Leaflet map widget using [The National Map](https://nationalmap.gov/) services.
+- Add `CreateWebMap` function, creates a Leaflet map widget using
+  [The National Map](https://nationalmap.gov/) services.
 
 - Tidy help documentation for functions.
 
 # inlmisc 0.2.6
 
 - Add `endian` argument to `ReadModflowBinary` function.
-  Argument describes the endian-ness (or byte-order) of the binary file and is required for calls to the `readBin` function.
+  Argument describes the endian-ness (or byte-order) of the binary file
+  and is required for calls to the `readBin` function.
   Thanks to Professor Brian Ripley for identifying this issue.
 
 # inlmisc 0.2.5

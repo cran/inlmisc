@@ -1,22 +1,21 @@
 #' Format P Values
 #'
-#' This function is intended for formatting \emph{p}-values.
-#' Scientific notation is written with LaTeX commands.
+#' Format \emph{p}-values
 #'
-#' @param x 'numeric'.
-#'   Vector of p-values.
-#' @param digits 'integer'.
+#' @param x 'numeric' vector.
+#'   \emph{p}-values
+#' @param digits 'integer' count.
 #'   Number of significant digits to be used.
-#' @param eps 'numeric'.
-#'   Numerical tolerance;
+#' @param eps 'numeric' number.
+#'   Numerical tolerance,
 #'   values less than \code{eps} are formatted as \code{"< [eps]"}.
-#' @param na.form 'character'.
+#' @param na.form 'character' string.
 #'   Value used for missing values.
-#' @param scientific 'logical'.
-#'   Indicates whether values should be encoded in scientific format.
+#' @param scientific 'logical' flag.
+#'   Whether values should be encoded in scientific format using LaTeX notation.
 #'   A missing value lets \R decide whether fixed or scientific notation is used.
 #'
-#' @return A 'character' vector of formatted \emph{p}-values.
+#' @return Returns a 'character' vector of formatted \emph{p}-values.
 #'
 #' @author J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center
 #'
@@ -33,7 +32,7 @@
 #'
 #' x <- c(0.1, 0.0001, 1e-27)
 #' FormatPval(x, scientific = TRUE)
-#' FormatPval(x, digits = 3L, eps = 0.001)
+#' FormatPval(x, digits = 3, eps = 0.001)
 #'
 
 FormatPval <- function(x, digits=max(1, getOption("digits") - 2),
@@ -48,12 +47,11 @@ FormatPval <- function(x, digits=max(1, getOption("digits") - 2),
   p <- format(round(x, digits), nsmall=digits, scientific=FALSE)
 
   is <- if (is.na(scientific)) grepl("e", formatC(x)) else rep(scientific, length(x))
-  p[is] <- ToScientific(x[is], digits=0L)
+  p[is] <- ToScientific(x[is], digits=0)
 
-  lim <- ifelse(grepl("e", formatC(eps)), ToScientific(eps, digits=0L), format(eps))
+  lim <- ifelse(grepl("e", formatC(eps)), ToScientific(eps, digits=0), format(eps))
   p[x < eps] <- sprintf("< %s", lim)
 
   p[is.na(x)] <- as.character(na.form)
-
-  return(p)
+  p
 }

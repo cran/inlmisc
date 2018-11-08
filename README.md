@@ -10,13 +10,13 @@
 
 The [R](https://www.r-project.org/) package **inlmisc** is a collection of functions for creating high-level graphics,
 performing raster-based analysis, processing [MODFLOW](https://water.usgs.gov/ogw/modflow/ "USGS's modular hydrologic model")-based models,
-selecting subsets using a genetic algorithm, creating interactive web maps, etc.
+selecting subsets using a genetic algorithm, creating interactive web maps, accessing color palettes, etc.
 Used to support packages and scripts written by researchers at the United States Geological Survey (USGS)
 Idaho National Laboratory (INL) [Project Office](https://www.usgs.gov/centers/id-water/science/idaho-national-laboratory-project-office "USGS INL Project Office").
 
 ## Install
 
-You can install the stable version from [CRAN](https://CRAN.R-project.org/package=inlmisc "The Comprehensive R Archive Network") 
+You can install the stable version from [CRAN](https://CRAN.R-project.org/package=inlmisc "The Comprehensive R Archive Network")
 using the following command:
 
 ```r
@@ -35,14 +35,12 @@ Please consider reporting bugs and asking questions on the [Issues page](https:/
 
 ## Disclaimer
 
-This information is preliminary or provisional and is subject to revision.
-It is being provided to meet the need for timely best science.
-The information has not received final approval by the USGS
-and is provided on the condition that neither the USGS nor the U.S. Government
-shall be held liable for any damages resulting from the authorized or unauthorized use of the information.
-
-Although this software program has been used by the USGS,
-no warranty, expressed or implied, is made by the USGS or the U.S. Government
-as to the accuracy and functioning of the program and related program material
-nor shall the fact of distribution constitute any such warranty,
-and no responsibility is assumed by the USGS in connection therewith.
+This software has been approved for release by the U.S. Geological Survey
+(USGS). Although the software has been subjected to rigorous review, the USGS
+reserves the right to update the software as needed pursuant to further analysis
+and review. No warranty, expressed or implied, is made by the USGS or the U.S.
+Government as to the functionality of the software and related material nor
+shall the fact of release constitute any such warranty. Furthermore, the
+software is released on condition that neither the USGS nor the U.S. Government
+shall be held liable for any damages resulting from its authorized or
+unauthorized use.

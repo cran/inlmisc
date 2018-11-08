@@ -1,23 +1,24 @@
-#' Overlaying Multi-Polygon Objects
+#' Overlay Multi-Polygon Objects
 #'
-#' Determines the intersection or difference between two multi-polygon objects.
+#' Calculate the intersection or difference between two multi-polygon objects.
 #'
 #' @param x 'SpatialPolygons*'.
 #'   Multi-polygon object
 #' @param y 'SpatialPolygons*' or 'Extent'.
-#'    Multi-polygon object
-#' @param cmd 'character'.
-#'    Specifying "gIntersection", the default, cuts out portions of the \code{x} polygons
-#'    that overlay the \code{y} polygons.
-#'    If "gDifference" is specified, only those portions of the \code{x} polygons
-#'    falling outside the \code{y} polygons are copied to the output polygons.
-#' @param buffer.width 'numeric'.
-#'    Expands or contracts the geometry of \code{y} to include the area within the specified width, see \code{gBuffer}.
-#'    Specifying \code{NA}, the default, indicates no buffer.
+#'   Multi-polygon object
+#' @param cmd 'character' string.
+#'   Specifying "gIntersection", the default, cuts out portions of the \code{x} polygons
+#'   that overlay the \code{y} polygons.
+#'   If "gDifference" is specified, only those portions of the \code{x} polygons
+#'   falling outside the \code{y} polygons are copied to the output polygons.
+#' @param buffer.width 'numeric' number.
+#'   Expands or contracts the geometry of \code{y} to include the area within
+#'   the specified width, see \code{gBuffer}.
+#'   Specifying \code{NA}, the default, indicates no buffer.
 #'
 #' @details This function tests if the resulting geometry is valid, see \code{\link{gIsValid}}.
 #'
-#' @return Returns an object of 'SpatialPolygons*' class.
+#' @return Returns an object of class 'SpatialPolygons*'.
 #'
 #' @author J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center
 #'
@@ -51,13 +52,10 @@
 
 SetPolygons <- function(x, y, cmd=c("gIntersection", "gDifference"), buffer.width=NA) {
 
+  stopifnot(inherits(x, c("SpatialPolygons", "SpatialPolygonsDataFrame")))
+  stopifnot(inherits(y, c("SpatialPolygons", "SpatialPolygonsDataFrame", "Extent")))
   cmd <- match.arg(cmd)
   checkmate::assertNumber(buffer.width, na.ok=TRUE, finite=TRUE)
-
-  if (!inherits(x, c("SpatialPolygons", "SpatialPolygonsDataFrame")))
-    stop("argument 'x' is the wrong class")
-  if (!inherits(y, c("SpatialPolygons", "SpatialPolygonsDataFrame", "Extent")))
-    stop("argument 'y' is the wrong class")
 
   if (inherits(y, "Extent")) {
     crds <- cbind(c(y[1:2], y[2:1], y[1]), c(rep(y[3], 2), rep(y[4], 2), y[3]))
@@ -106,7 +104,7 @@ SetPolygons <- function(x, y, cmd=c("gIntersection", "gDifference"), buffer.widt
     } else {
       p <- if (cmd == "gIntersection") NULL else x[i]@polygons[[1]]
     }
-    return(p)
+    p
   })
 
   is.retained <- !vapply(z, is.null, TRUE)
@@ -115,5 +113,5 @@ SetPolygons <- function(x, y, cmd=c("gIntersection", "gDifference"), buffer.widt
     d <- d[is.retained, , drop=FALSE]
     z <- sp::SpatialPolygonsDataFrame(z, d, match.ID=TRUE)
   }
-  return(z)
+  z
 }

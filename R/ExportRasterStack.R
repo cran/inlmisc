@@ -1,18 +1,18 @@
-#' Export Raster Stack
+#' Export a Raster Stack
 #'
-#' This function writes a raster-stack, a collection of raster layers,
+#' Write a raster-stack, a collection of raster layers,
 #' to local directories using multiple file formats.
 #'
-#' @param rs 'RasterStack'.
-#'   A collection of \code{\linkS4class{RasterLayer}} objects with
+#' @param rs 'RasterStack' or 'RasterBrick'.
+#'   Collection of \code{\linkS4class{RasterLayer}} objects with
 #'   the same extent and resolution.
-#' @param path 'character'.
+#' @param path 'character' string.
 #'   Path name to write raster stack.
-#' @param zip 'character'.
+#' @param zip 'character' string.
 #'   If there is no zip program on your path (on windows),
 #'   you can supply the full path to a \file{zip.exe} here, in order to make a KMZ file.
-#' @param col 'character'.
-#'   Vector of colors
+#' @param col 'character' vector.
+#'   Color names
 #'
 #' @details Five local directories are created under \code{path} and
 #'   named after their intended file formats:
@@ -44,16 +44,26 @@
 #'
 #' @examples
 #' \dontrun{
-#'   f <- system.file("external/rlogo.grd", package = "raster")
-#'   rs <- raster::stack(f)
-#'   print(rs)
-#'   ExportRasterStack(rs, tempdir())
+#' rs <- raster::stack(system.file("external/rlogo.grd", package = "raster"))
+#' print(rs)
+#' path <- file.path(tempdir(), "rlogo")
+#' dir.create(path)
+#' ExportRasterStack(rs, path)
+#' list.files(normalizePath(path, winslash = "/"), full.name = TRUE,
+#'            recursive = TRUE, include.dirs = TRUE)
+#'
+#' unlink(path, recursive = TRUE)
 #' }
 #'
 
 ExportRasterStack <- function(rs, path, zip="", col=NULL) {
 
-  if (is.null(col)) col <- GetTolColors(255, start=0.3, end=0.9)
+  # check arguments
+  stopifnot(inherits(rs, c("RasterStack", "RasterBrick")))
+  checkmate::assertString(path)
+  checkmate::assertString(zip)
+  if (zip != "") checkmate::assertFileExists(zip)
+  checkmate::assertCharacter(col, null.ok=TRUE)
 
   dir.create(path, showWarnings=FALSE, recursive=TRUE)
   dir.create(path.csv <- file.path(path, "csv"), showWarnings=FALSE)
@@ -61,6 +71,8 @@ ExportRasterStack <- function(rs, path, zip="", col=NULL) {
   dir.create(path.tif <- file.path(path, "tif"), showWarnings=FALSE)
   dir.create(path.rda <- file.path(path, "rda"), showWarnings=FALSE)
   dir.create(path.kml <- file.path(path, "kml"), showWarnings=FALSE)
+
+  if (is.null(col)) col <- GetColors(255, stops=c(0.3, 0.9))
 
   n <- 0L
   for (i in names(rs)) {

@@ -4,23 +4,23 @@
 \alias{SummariseBudget}
 \title{Summarize MODFLOW Water Budget}
 \usage{
-SummariseBudget(budget, desc, id = NULL)
+SummariseBudget(budget, desc = NULL, id = NULL)
 }
 \arguments{
-\item{budget}{'character' or 'list'.
+\item{budget}{'character' string or 'list'.
 Either the path to a MODFLOW cell-by-cell budget file or
 the object returned from the \code{\link{ReadModflowBinary}} function.}
 
-\item{desc}{'character'.
-Vector of data-type descriptors, such as \code{c("wells", "drains")}.
+\item{desc}{'character' vector.
+Data-type descriptors, such as \code{c("wells", "drains")}.
 If missing, all data types are summarized.}
 
-\item{id}{'character'.
+\item{id}{'character' string.
 Name of auxiliary variable, a variable of additional values associated with each cell
 saved using the \emph{\bold{"AUXILIARY"}} output option.}
 }
 \value{
-Returns a 'data.frame' object with the following variables:
+Returns a 'data.table' with the following variables:
   \describe{
     \item{desc}{description of data type, such as "wells".}
     \item{kper}{stress period}
@@ -39,11 +39,10 @@ Returns a 'data.frame' object with the following variables:
   }
 }
 \description{
-This is a utility function for \href{https://water.usgs.gov/ogw/modflow/}{MODFLOW}-based models,
-the U.S. Geological Survey's three-dimensional finite-difference groundwater model.
-It summarizes volumetric flow rates by boundary condition types.
-That is, it splits the MODFLOW cell-by-cell flow data into subsets,
-computes summary statistics for each, and returns a resulting summary table.
+Summarize \href{https://water.usgs.gov/ogw/modflow/}{MODFLOW}
+volumetric flow rates by boundary condition types.
+Cell-by-cell flow data is split into subsets,
+summary statistics computed for each subset, and a summary table returned.
 }
 \details{
 Subsets are grouped by data type (desc), stress period
@@ -53,8 +52,8 @@ Subsets are grouped by data type (desc), stress period
 }
 \examples{
 path <- system.file("extdata", "ex.bud", package = "inlmisc")
-budget.summary <- SummariseBudget(path, "river leakage", "iface")
-print(budget.summary)
+out <- SummariseBudget(path, desc = "river leakage", id = "iface")
+print(out)
 
 }
 \seealso{

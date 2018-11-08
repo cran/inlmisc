@@ -1,17 +1,17 @@
-#' Adjustment for Vertically Disconnected Cells
+#' Adjust Vertically Disconnected Cells
 #'
 #' Given upper and lower surfaces (raster layers) of a three-dimensional (3D) model layer,
 #' this function incrementally decreases lower cell values until
-#' a minimum vertical overlap between adjacent model cells is achieved.
+#' a minimum vertical overlap between adjacent model cells is satisfied.
 #'
 #' @param rs 'Raster*'.
-#'   A collection of two raster layers, the first and second layers represent
+#'   Collection of two raster layers, the first and second layers represent
 #'   the upper and lower surface of a 3D model layer.
-#' @param min.overlap 'numeric'.
+#' @param min.overlap 'numeric' number.
 #'   Minimum vertical overlap between horizontally adjacent model cells.
-#' @param bump.by 'numeric'.
+#' @param bump.by 'numeric' number.
 #'   Amount to decrease a cell value by during each iteration of the algorithm.
-#' @param max.itr 'numeric'.
+#' @param max.itr 'integer' count.
 #'   Maximum number of iterations.
 #'
 #' @details During each iteration of the algorithm:
@@ -21,7 +21,8 @@
 #'   (2) For cells violating the minimum vertical overlap, lower raster layer (\code{rs[[2]]}) values are
 #'       decreased by the value specified in the \code{bump.by} argument.
 #'
-#' @return Returns a 'RasterLayer' that can be added to \code{rs[[2]]} to ensure connectivity between model layer cells.
+#' @return Returns an object of class 'RasterLayer' that can be added to
+#'   \code{rs[[2]]} to ensure connectivity between model layer cells.
 #'   Cell values in the returned raster grid represent vertical adjustments.
 #'
 #' @author J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center
@@ -38,19 +39,19 @@
 #' r_bot[] <- rnorm(raster::ncell(r_bot), mean = 10)
 #' rs <- raster::stack(r_top, r_bot)
 #' r <- BumpDisconnectCells(rs, min.overlap = 0.1)
-#' raster::plot(r, col = GetTolColors(255, reverse = TRUE))
+#' raster::plot(r, col = GetColors(255, reverse = TRUE))
 #' summary(r[])
 #'
 #' r_bot_new <- r_bot + r
 #'
 
-BumpDisconnectCells <- function(rs, min.overlap=2, bump.by=0.1, max.itr=1e+04) {
+BumpDisconnectCells <- function(rs, min.overlap=2, bump.by=0.1, max.itr=10000) {
 
   stopifnot(inherits(rs, c("RasterStack", "RasterBrick")))
   stopifnot(raster::nlayers(rs) >= 2)
   checkmate::assertNumber(min.overlap, lower=0, finite=TRUE)
   checkmate::assertNumber(bump.by, lower=0, finite=TRUE)
-  checkmate::assertNumber(max.itr, lower=1, finite=TRUE)
+  checkmate::assertCount(max.itr)
 
   r <- rs[[2]]
 
@@ -59,19 +60,18 @@ BumpDisconnectCells <- function(rs, min.overlap=2, bump.by=0.1, max.itr=1e+04) {
   cols <- raster::colFromCell(r, cell)
 
   d <- cbind(cell, c1=NA, c2=NA, c3=NA, c4=NA)
-  d[, "c1"] <- raster::cellFromRowCol(r, rows + 1L, cols)
-  d[, "c2"] <- raster::cellFromRowCol(r, rows, cols - 1L)
-  d[, "c3"] <- raster::cellFromRowCol(r, rows - 1L, cols)
-  d[, "c4"] <- raster::cellFromRowCol(r, rows, cols + 1L)
+  d[, "c1"] <- raster::cellFromRowCol(r, rows + 1, cols)
+  d[, "c2"] <- raster::cellFromRowCol(r, rows, cols - 1)
+  d[, "c3"] <- raster::cellFromRowCol(r, rows - 1, cols)
+  d[, "c4"] <- raster::cellFromRowCol(r, rows, cols + 1)
 
   itr <- 0L
   while(TRUE) {
-
     FUN <- function(i) {
       x <- rep(NA, nrow(d))
       is <- !is.na(d[, i])
       x[is] <- r[d[is, "cell"]] >= rs[[1]][d[is, i]] - min.overlap
-      return(x)
+      x
     }
     m <- cbind(FUN("c1"), FUN("c2"), FUN("c3"), FUN("c4"))
     is.disconnected <- apply(m, 1, any, na.rm=TRUE)
@@ -88,5 +88,5 @@ BumpDisconnectCells <- function(rs, min.overlap=2, bump.by=0.1, max.itr=1e+04) {
 
     d <- d[is.disconnected, , drop=FALSE]
   }
-  return(r - rs[[2]])
+  r - rs[[2]]
 }

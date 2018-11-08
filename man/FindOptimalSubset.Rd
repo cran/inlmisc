@@ -2,19 +2,19 @@
 % Please edit documentation in R/FindOptimalSubset.R
 \name{FindOptimalSubset}
 \alias{FindOptimalSubset}
-\title{Genetic Algorithm for Subset Selection}
+\title{Find Optimal Subset Using a GA}
 \usage{
 FindOptimalSubset(n, k, Fitness, ..., popSize = 100,
   migrationRate = 0.1, migrationInterval = 10, pcrossover = 0.8,
-  pmutation = 0.1, elitism = 0, maxiter = 1000L, run = maxiter,
+  pmutation = 0.1, elitism = 0, maxiter = 1000, run = maxiter,
   suggestions = NULL, parallel = TRUE, monitor = NULL, seed = NULL)
 }
 \arguments{
-\item{n}{'integer'.
+\item{n}{'integer' count.
 Maximum permissible index, that is, the length of the finite sequence (\code{1:n}).
 The GA chooses a subset from this sequence.}
 
-\item{k}{'integer'.
+\item{k}{'integer' count.
 Number of indices to choose, that is, the fixed size of the subset.}
 
 \item{Fitness}{'function'.
@@ -27,38 +27,37 @@ Recall that the GA searches for a maximum fitness value.}
 
 \item{...}{Additional arguments to be passed to the fitness function.}
 
-\item{popSize}{'integer'.
+\item{popSize}{'integer' count.
 Population size}
 
-\item{migrationRate}{'numeric'.
+\item{migrationRate}{'numeric' number.
 Proportion of individuals that should migrate between islands.}
 
-\item{migrationInterval}{'integer'.
+\item{migrationInterval}{'integer' count.
 Number of iterations at which exchange of individuals takes place.
 This interval between migrations is called an \emph{epoch}.}
 
-\item{pcrossover}{'numeric'.
+\item{pcrossover}{'numeric' number.
 Probability of crossover between pairs of chromosomes.}
 
-\item{pmutation}{'numeric'.
+\item{pmutation}{'numeric' number.
 Probability of mutation in a parent chromosome.}
 
-\item{elitism}{'integer'.
+\item{elitism}{'integer' count.
 Number of chromosomes to survive into the next generation.}
 
-\item{maxiter}{'integer'.
+\item{maxiter}{'integer' count.
 Maximum number of iterations to run before the GA search is halted.}
 
-\item{run}{'integer'.
+\item{run}{'integer' count.
 Number of consecutive generations without any improvement in the
 \dQuote{best} fitness value before the GA is stopped.}
 
-\item{suggestions}{'matrix'.
-Integer (or binary) representation of chromosomes to be included in the initial population (optional).
-For binary representation of chromosomes, the number of columns must match the number of decision variables.
-See returned list components \code{solution} and \code{ga_output@solution} for suggested values for this arugment.}
+\item{suggestions}{integer 'matrix'.
+Integer chromosomes to be included in the initial population.
+See returned \code{solution} component for a suggested value for this arugment.}
 
-\item{parallel}{'logical' or 'integer'.
+\item{parallel}{'logical' flag or 'integer' count.
 Whether to use parallel computing.
 This argument can also be used to specify the number of cores
 (and number of islands) to employ; by default,
@@ -66,11 +65,11 @@ this is taken from \code{\link[parallel]{detectCores}}.
 The \pkg{parallel} and \pkg{doParallel} packages must be
 installed for parallel computing to work.}
 
-\item{monitor}{'Function'.
-A function that takes as input the current state of the \code{\link[=gaisl-class]{gaisl-class}} object,
+\item{monitor}{'function'.
+Function that takes as input the current state of the \code{\link[=gaisl-class]{gaisl-class}} object,
 and is run at each epoch of the islands GA search.}
 
-\item{seed}{'integer'.
+\item{seed}{'integer' count.
 Random number generator state for random number generation, used to replicate the results.
 The \pkg{doRNG} package must be installed if using parallel computing.}
 }
@@ -89,8 +88,7 @@ Returns a 'list' with components:
   }
 }
 \description{
-This function identifies an optimal subset of a fixed size \code{k}
-from a finite sequence of length \code{n}.
+Find optimal subset of a fixed size \code{k} from a finite sequence of length \code{n}.
 A distributed multiple-population genetic algorithm (GA) is used to do
 subset selection based on the maximization of a user-supplied fitness function.
 }
@@ -109,12 +107,11 @@ The fitness function (see \code{Fitness} argument) is solved using
 # genearated from a standard uniform distribution.
 k <- 4
 n <- 100
-seed <- 321
+seed <- 123
 set.seed(seed); numbers <- sort(runif(n))
 Fitness <- function(string, n, numbers) {
   idxs <- DecodeChromosome(string, n)
-  value <- -sum(numbers[idxs])
-  return(value)
+  -sum(numbers[idxs])
 }
 \dontrun{
 out <- FindOptimalSubset(n, k, Fitness, numbers, elitism = 1, run = 10,

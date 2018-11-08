@@ -2,7 +2,7 @@
 % Please edit documentation in R/ExtractAlongTransect.R
 \name{ExtractAlongTransect}
 \alias{ExtractAlongTransect}
-\title{Extract Raster Values Along Transect Line}
+\title{Extract Raster Values Along a Transect Line}
 \usage{
 ExtractAlongTransect(transect, r)
 }
@@ -14,7 +14,7 @@ Transect line or its vertices.}
 Raster layer(s)}
 }
 \value{
-A 'list' is returned with components of class 'SpatialPointsDataFrame'.
+Returns a 'list' with components of class 'SpatialPointsDataFrame'.
   These components represent continuous piecewise line segments along the transect.
   The following variables are specified for each coordinate point in the line segment:
   \describe{
@@ -23,7 +23,7 @@ A 'list' is returned with components of class 'SpatialPointsDataFrame'.
   }
 }
 \description{
-This function extracts values from raster layer(s) along a user defined transect line.
+Extract values from raster layer(s) along a user defined transect line.
 }
 \details{
 The transect line is described using a simple polygonal chain.
@@ -51,7 +51,7 @@ ylab <- "Raster value"
 xlim <- range(vapply(segs, function(i) range(i@data[, "dist"]), c(0, 0)))
 ylim <- range(vapply(segs, function(i) range(i@data[, "value"], na.rm = TRUE), c(0, 0)))
 plot(NA, type = "n", xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim)
-cols <- GetTolColors(length(segs), scheme = "bright")
+cols <- GetColors(length(segs), scheme = "bright")
 for (i in seq_along(segs))
   lines(segs[[i]]@data[, c("dist", "value")], col = cols[i])
 coords <- sp::coordinates(transect)

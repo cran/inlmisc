@@ -1,25 +1,23 @@
 #' Add Scale Bar to Plot
 #'
-#' This function can be used to add a scale bar (also known as a rake scale) to a plot.
+#' Add a scale bar (also known as a rake scale) to a plot.
 #'
-#' @param unit 'character'.
-#'   Vector of length 1 or 2 giving the
-#'   label(s) describing the unit of measurement of scale distances, such as "METERS".
-#' @param conv.fact 'numeric'.
-#'   Vector of length 1 or 2 giving the
-#'   conversion factor(s) for changing the unit of measurement for scale distances.
+#' @param unit 'character' vector of length 1 or 2, value is recycled as necessary.
+#'   Label(s) describing the unit of measurement of scale distances, such as "METERS".
+#' @param conv.fact 'numeric' vector of length 1 or 2, value is recycled as necessary.
+#'   Conversion factor(s) for changing the unit of measurement for scale distances.
 #'   For example, if user coordinates of the plotting region are in meters,
 #'   specify \code{3.28084} to display scale distances in feet.
 #'   A dual-unit scale bar is created by specifying a second conversion factor.
-#' @param vert.exag 'logical', 'numeric', or 'character'.
+#' @param vert.exag 'logical' flag, 'numeric' vector, or 'character' vector.
 #'   Either a logical value indicating whether to include a vertical exaggeration label;
 #'   or a custom \emph{y/x} aspect ratio to include in this label.
-#' @param longlat 'logical'.
+#' @param longlat 'logical' flag.
 #'   Whether user coordinates of the plotting region are in longitude and latitude;
 #'   if true, scale distances are in kilometers.
 #'   Note that scale distances are calculated at the maps latitude midpoint
 #'   using the Great Circle distance (WGS84 ellipsoid) method.
-#' @param loc 'character'.
+#' @param loc 'character' string.
 #'   Position of the scale bar in the main plot region;
 #'   see \code{\link{GetInsetLocation}} function for keyword descriptions.
 #' @param ...
@@ -147,6 +145,8 @@ AddScaleBar <- function(unit=NULL, conv.fact=NULL, vert.exag=NULL, longlat=FALSE
       y <- xy[2] - tcl - pady - graphics::strheight("0", cex=0.7) - pady
     graphics::text(xy[1] + len / 2, y, txt, cex=0.7, adj=c(0.5, 1), xpd=TRUE)
   }
+
+  invisible()
 }
 
 
@@ -158,5 +158,5 @@ AddScaleBar <- function(unit=NULL, conv.fact=NULL, vert.exag=NULL, longlat=FALSE
   m1 <- x / 10^n
   vec <- c(0, utils::head(base, -1) + diff(base) / 2)
   m2 <- base[findInterval(m1, vec)]
-  return(m2 * 10^n)
+  m2 * 10^n
 }

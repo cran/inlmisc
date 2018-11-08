@@ -2,22 +2,22 @@
 % Please edit documentation in R/ReadCodeChunks.R
 \name{ReadCodeChunks}
 \alias{ReadCodeChunks}
-\title{Read Code Chunks}
+\title{Read Knitr Code Chunks}
 \usage{
 ReadCodeChunks(path)
 }
 \arguments{
-\item{path}{'character'.
+\item{path}{'character' string.
 Path name of the \bold{knitr} source document (\file{.Rnw} or \file{.Rmd}),
 or R code that has been extracted from a \bold{knitr} source document (\file{.R}).}
 }
 \value{
-Returns a 'list' object of length equal to the number of code chunks in \code{path}.
-  Each 'list' component is named after its corresponding chunk name (\code{chunk-name}).
+Returns a 'list' of length equal to the number of code chunks in \code{path}.
+  Each list component is named after its corresponding chunk name (\code{chunk-name}).
   The returned object includes the value of the \code{path} argument as an attribute.
 }
 \description{
-This function reads \bold{knitr} code chunks into the current session.
+Read \bold{knitr} code chunks into the current session.
 }
 \details{
 If the source document is \file{.Rnw} or \file{.Rmd} the \code{purl} function is used to extract the R code.
@@ -27,6 +27,7 @@ If the source document is \file{.Rnw} or \file{.Rmd} the \code{purl} function is
   names like \code{unnamed-chunk-i} where \code{i} is the chunk number.
 }
 \examples{
+\dontrun{
 file <- system.file("misc", "knitr-markdown.Rmd", package = "inlmisc")
 chunks <- ReadCodeChunks(file)
 
@@ -35,6 +36,7 @@ names(chunks)
 chunks[["named-chunk-2"]]
 
 eval(parse(text = unlist(chunks[c("unnamed-chunk-3", "named-chunk-4")])))
+}
 
 }
 \seealso{

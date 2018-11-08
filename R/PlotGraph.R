@@ -1,26 +1,24 @@
-#' Plot Method for Graphs
+#' Plot Graph
 #'
-#' This function draws a sequence of points, lines, or
-#' box-and-whiskers using specified coordinates.
+#' Draw a sequence of points, lines, or box-and-whiskers.
 #'
-#' @param x,y 'Date', 'numeric', 'matrix', or 'data.frame'.
-#'   Vectors or matrices of data for plotting.
-#'   The vector length or number of rows should match.
+#' @param x,y 'Date' vector, 'numeric' vector, 'matrix', or 'data.frame'.
+#'   Data for plotting where the vector length or number of rows should match.
 #'   If \code{y} is missing, then \code{x = x[, 1]} and \code{y = x[, -1]}.
-#' @param xlab 'character'.
+#' @param xlab 'character' string.
 #'   Title for \emph{x} axis.
-#' @param ylab 'character'.
-#'   Vector of length 2 giving the title for the 1st and 2nd-\emph{y} axes.
+#' @param ylab 'character' vector of length 2.
+#'   Title for the 1st and 2nd-\emph{y} axes.
 #'   The title for the 2nd-\emph{y} axis is optional and requires \code{conversion.factor} be specified.
-#' @param main 'character'.
+#' @param main 'character' string.
 #'   Main title for the plot.
-#' @param xlim 'numeric' or 'Date'.
-#'   Vector of length 2 giving the minimum and maximum values for the \emph{x}-axis.
-#' @param xn,yn 'integer'.
+#' @param xlim 'numeric' or 'Date' vector of length 2.
+#'   Minimum and maximum values for the \emph{x}-axis.
+#' @param xn,yn 'integer' count.
 #'   Desired number of intervals between tick-marks on the \emph{x}- and \emph{y}-axis, respectively.
-#' @param ylog 'logical'.
-#'   If true, a logarithm scale is used for the \emph{y} axis.
-#' @param type 'character'.
+#' @param ylog 'logical' flag.
+#'   Whether a logarithm scale is used for the \emph{y} axis.
+#' @param type 'character' string.
 #'   Plot type, possible types are
 #'   \itemize{
 #'     \item "p" for \bold{p}oints,
@@ -32,44 +30,45 @@
 #'     \item "n" for \bold{n}o plotting.
 #'   }
 #'   Characters in \code{type} are cycled through; such as, "pl" alternately plots points and lines.
-#' @param lty 'integer'.
+#' @param lty 'integer' vector.
 #'   Line type, see \code{\link{par}} function for all possible types.
 #'   Line types are used cyclically.
-#' @param lwd 'numeric'.
+#' @param lwd 'numeric' number.
 #'   Line width
-#' @param pch 'integer'.
+#' @param pch 'integer' count.
 #'   Point type, see \code{\link{points}} function for all possible types.
-#' @param col character or function.
+#' @param col 'character' vector or 'function'.
 #'   Point or line color, see \code{\link{par}} function for all possible ways this can be specified.
 #'   Colors are used cyclically.
-#' @param bg 'character'.
-#'   Vector of background colors for the open plot symbols given by \code{pch = 21:25} as in \code{\link{points}}.
-#' @param fill 'character'.
+#' @param bg 'character' vector.
+#'   Background colors for the open plot symbols given by \code{pch = 21:25} as in \code{\link{points}}.
+#' @param fill 'character' string.
 #'   Used to create filled area plots. Specify
 #'   \code{"tozeroy"} to fill to zero on the \emph{y}-axis;
 #'   \code{"tominy"} to fill to the minimum \emph{y} value in the plotting region; and
 #'   \code{"tomaxy"} to fill to the maximum.
 #'   Requires plot \code{type = "l"}, \code{"b"}, and \code{"s"}.
-#' @param fillcolor 'character'.
-#'   Vector of colors for basic filled area plots.
+#' @param fillcolor 'character' vector.
+#'   Colors for basic filled area plots.
 #'   Defaults to a half-transparent variant of the line color (\code{col}).
-#' @param pt.cex 'numeric'.
+#' @param pt.cex 'numeric' number.
 #'   Expansion factor for the points.
-#' @param xpd 'logical'.
-#'   If false, point and (or) line symbols are clipped to the plot region.
-#' @param seq.date.by 'character', 'numeric', or 'difftime'.
-#'   The increment of the date sequence, see the \code{by} argument in the \code{\link{seq.Date}} function for all possible ways this can be specified.
-#' @param scientific 'logical'.
-#'   Vector of length 3 that indicates if axes labels should be encoded in nice scientific format.
+#' @param xpd 'logical' flag.
+#'   Whether to prevent point and (or) line symbols from being clipped to the plot region.
+#' @param seq.date.by 'character' string, 'numeric' number, or 'difftime'.
+#'   The increment of the date sequence, see the \code{by} argument
+#'   in the \code{\link{seq.Date}} function for all possible ways this can be specified.
+#' @param scientific 'logical' vector of length 1, 2, or 3, value is recycled as necessary.
+#'   Whether axes labels should be encoded in nice scientific format.
 #'   Vector elements correspond to the \emph{x}-axis, \code{y}-axis, and second \emph{y}-axis labels.
 #'   Values are recycled as necessary.
 #'   Missing values correspond to the current default penalty (see \code{\link{options}("scipen")})
 #'   to be applied when deciding to print numeric values in fixed or scientific notation.
-#' @param conversion.factor 'numeric'.
-#'   A conversion factor for the 2nd-\emph{y} axis.
-#' @param boxwex 'numeric'.
-#'   A scale factor to be applied to all boxes, only applicable for box-and-whisker plots.
-#' @param center.date.labels 'logical'.
+#' @param conversion.factor 'numeric' number.
+#'   Conversion factor for the 2nd-\emph{y} axis.
+#' @param boxwex 'numeric' number.
+#'   Scale factor to be applied to all boxes, only applicable for box-and-whisker plots.
+#' @param center.date.labels 'logical' flag.
 #'   If true, date labels are horizontally centered between \emph{x}-axis tickmarks.
 #' @param bg.polygon 'list'.
 #'   If specified, a background polygon is drawn.
@@ -110,7 +109,7 @@
 #'
 #' y <- sapply(1:3, function(i) sample((1:100) + i * 100, n, replace = TRUE))
 #' m <- cbind(as.numeric(x), y)
-#' col <- GetTolColors(3, scheme = "bright")
+#' col <- GetColors(3, scheme = "bright")
 #' PlotGraph(m, xlab = "Number", ylab = "Random number", type = "b", pch = 15:17,
 #'           col = col, pt.cex = 0.9)
 #' legend("topright", LETTERS[1:3], inset = 0.05, col = col, lty = 1, pch = 15:17,
@@ -194,7 +193,7 @@ PlotGraph <- function(x, y, xlab, ylab, main=NULL, asp=NA, xlim=NULL, ylim=NULL,
       col <- col(n)
     } else {
       scheme <- if (n > 7) "smooth rainbow" else "bright"
-      col <- GetTolColors(n, scheme=scheme)
+      col <- GetColors(n, scheme=scheme)
     }
   }
 
@@ -241,7 +240,7 @@ PlotGraph <- function(x, y, xlab, ylab, main=NULL, asp=NA, xlim=NULL, ylim=NULL,
           yyy <- utils::head(rep(yyy, each=2), -1)
           max.idx <- max(idxs)
           if (max.idx < length(xx)) {
-            xxx <- c(xxx, xx[max.idx + 1L])
+            xxx <- c(xxx, xx[max.idx + 1])
             yyy <- c(yyy, utils::tail(yyy, 1))
           }
         }
@@ -405,7 +404,7 @@ PlotGraph <- function(x, y, xlab, ylab, main=NULL, asp=NA, xlim=NULL, ylim=NULL,
         yyy <- utils::head(rep(yy[idxs], each=2), -1)
         max.idx <- max(idxs)
         if (max.idx < length(xx)) {
-          xxx <- c(xxx, xx[max.idx + 1L])
+          xxx <- c(xxx, xx[max.idx + 1])
           yyy <- c(yyy, utils::tail(yyy, 1))
         }
         graphics::lines(xxx, yyy, lty=lty[i], lwd=lwd[i], col=col[i])
@@ -417,7 +416,7 @@ PlotGraph <- function(x, y, xlab, ylab, main=NULL, asp=NA, xlim=NULL, ylim=NULL,
                       pch=pch, col=col, bg=bg, cex=pt.cex, add=TRUE, verbose=FALSE)
   }
 
-  invisible(NULL)
+  invisible()
 }
 
 
@@ -425,9 +424,9 @@ PlotGraph <- function(x, y, xlab, ylab, main=NULL, asp=NA, xlim=NULL, ylim=NULL,
   grp <- as.integer(!is.na(y))
   mult <- 1L
   for (i in seq_along(grp)[-1]) {
-    if (grp[i - 1L] > 0L & grp[i] == 0L) mult <- mult + 1L
+    if (grp[i - 1] > 0 & grp[i] == 0) mult <- mult + 1L
     grp[i] <- grp[i] * mult
   }
-  grp[grp == 0L] <- NA
-  return(grp)
+  grp[grp == 0] <- NA
+  grp
 }

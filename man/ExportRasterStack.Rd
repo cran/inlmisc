@@ -2,30 +2,30 @@
 % Please edit documentation in R/ExportRasterStack.R
 \name{ExportRasterStack}
 \alias{ExportRasterStack}
-\title{Export Raster Stack}
+\title{Export a Raster Stack}
 \usage{
 ExportRasterStack(rs, path, zip = "", col = NULL)
 }
 \arguments{
-\item{rs}{'RasterStack'.
-A collection of \code{\linkS4class{RasterLayer}} objects with
+\item{rs}{'RasterStack' or 'RasterBrick'.
+Collection of \code{\linkS4class{RasterLayer}} objects with
 the same extent and resolution.}
 
-\item{path}{'character'.
+\item{path}{'character' string.
 Path name to write raster stack.}
 
-\item{zip}{'character'.
+\item{zip}{'character' string.
 If there is no zip program on your path (on windows),
 you can supply the full path to a \file{zip.exe} here, in order to make a KMZ file.}
 
-\item{col}{'character'.
-Vector of colors}
+\item{col}{'character' vector.
+Color names}
 }
 \value{
 Used for the side-effect files written to disk.
 }
 \description{
-This function writes a raster-stack, a collection of raster layers,
+Write a raster-stack, a collection of raster layers,
 to local directories using multiple file formats.
 }
 \details{
@@ -50,10 +50,15 @@ If the zip program is unavailable on windows, install it
 }
 \examples{
 \dontrun{
-  f <- system.file("external/rlogo.grd", package = "raster")
-  rs <- raster::stack(f)
-  print(rs)
-  ExportRasterStack(rs, tempdir())
+rs <- raster::stack(system.file("external/rlogo.grd", package = "raster"))
+print(rs)
+path <- file.path(tempdir(), "rlogo")
+dir.create(path)
+ExportRasterStack(rs, path)
+list.files(normalizePath(path, winslash = "/"), full.name = TRUE,
+           recursive = TRUE, include.dirs = TRUE)
+
+unlink(path, recursive = TRUE)
 }
 
 }

@@ -1,13 +1,14 @@
 #' Remove Small Cell Chunks
 #'
-#' This function identifies cell chunks in a single raster grid layer,
+#' Remove small cell chunks from a raster layer,
 #' where a cell chunk is defined as a group of connected cells with non-missing values.
 #' The cell chunk with the largest surface area is preserved and all others removed.
 #'
 #' @param r 'RasterLayer'.
-#'   A raster grid layer with cell values.
+#'   Raster grid layer with cell values.
 #'
-#' @return Returns a 'RasterLayer' object, \code{r} with cell values in the smaller cell chunks set to \code{NA}.
+#' @return Returns an object of class 'RasterLayer' giving
+#'   \code{r} with cell values in the smaller cell chunks set to \code{NA}.
 #'
 #' @author J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center
 #'
@@ -32,7 +33,7 @@
 
 RmSmallCellChunks <- function(r) {
 
-  stopifnot(inherits(r, "RasterLayer"))
+  checkmate::assertClass(r, "RasterLayer")
 
   ext <- raster::extent(r)
   new.ext <- raster::extent(c(ext@xmin - raster::res(r)[1], ext@xmax + raster::res(r)[1],
@@ -47,13 +48,11 @@ RmSmallCellChunks <- function(r) {
 
   biggest.chunk <- chunks[which(chunk.sizes == max(chunk.sizes))]
   n <- length(biggest.chunk)
-  if (n > 1L) warning(sprintf("There are %d raster chunks with largest area.", n))
+  if (n > 1) warning(sprintf("There are %d raster chunks with largest area.", n))
 
   chunk.numbers[!is.na(chunk.numbers) & !chunk.numbers %in% biggest.chunk] <- NA
   r.values[is.na(chunk.numbers)] <- NA
   new.r[] <- r.values
 
-  r <- raster::crop(new.r, ext)
-
-  return(r)
+  raster::crop(new.r, ext)
 }

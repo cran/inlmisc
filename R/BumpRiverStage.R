@@ -1,6 +1,6 @@
-#' Adjustment for Implausible River Stage
+#' Adjust Implausible River Stage
 #'
-#' This function decreases stage values in river cells if they are implausible
+#' Decrease stage values in river cells if they are implausible
 #' with respect to water always flowing downhill.
 #'
 #' @param r 'RasterLayer'.
@@ -8,7 +8,7 @@
 #' @param outlets 'SpatialPoints*', 'SpatialLines*', 'SpatialPolygons*' or 'Extent'.
 #'   Designates the location of discharge outlets.
 #'   The \code{\link{rasterize}} function is used to locate outlet cells in the raster grid \code{r}.
-#' @param min.drop 'numeric'.
+#' @param min.drop 'numeric' number.
 #'   Minimum drop in stage between adjacent river cells.
 #'
 #' @details The \href{https://en.wikipedia.org/wiki/Lee_algorithm}{Lee algorithm} (Lee, 1961)
@@ -17,7 +17,7 @@
 #'   that are obstructing downhill surface-water flow.
 #'   Stage values for these problematic cells are then lowered to an acceptable elevation.
 #'
-#' @return Returns a 'RasterLayer' with cell values representing the vertical change in stream stage.
+#' @return Returns an object of class 'RasterLayer' with cell values representing the vertical change in stream stage.
 #'   These changes can be added to \code{r} to ensure that water always flows downhill.
 #'
 #' @author J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center
@@ -47,7 +47,7 @@ BumpRiverStage <- function(r, outlets, min.drop=1e-06) {
 
   adj <- unique(raster::adjacent(r, riv.cells, sorted=TRUE))
   adj <- cbind(adj, is=as.integer(adj[, "to"] %in% riv.cells))
-  adj <- adj[adj[, "is"] == 1L, c("from", "to")]
+  adj <- adj[adj[, "is"] == 1, c("from", "to")]
 
   # Move up the river system finding all possible source (stuck) cells off the main paths.
 
@@ -108,7 +108,7 @@ BumpRiverStage <- function(r, outlets, min.drop=1e-06) {
         break
       }
     }
-    return(dist)
+    dist
   }
   dists <- CalcWaveExpansion(sink.cells)
 
@@ -122,7 +122,7 @@ BumpRiverStage <- function(r, outlets, min.drop=1e-06) {
       cell <- adj.cells[.WhichMin(dists[riv.cells %in% adj.cells])]
       if (cell %in% sink.cells) break
     }
-    return(path)
+    path
   }
   paths <- lapply(source.cells, BacktracePath)
 
@@ -134,7 +134,7 @@ BumpRiverStage <- function(r, outlets, min.drop=1e-06) {
       i <- match(TRUE, difs > 0)
       if (is.na(i))
         break
-      cell <- path[i + 1L]
+      cell <- path[i + 1]
       r[cell] <<- r[cell] - difs[i] - min.drop
     }
     invisible(difs)
@@ -153,15 +153,15 @@ BumpRiverStage <- function(r, outlets, min.drop=1e-06) {
   }
   lapply(source.cells, SetNonPathCells)
 
-  return(r - r.save)
+  r - r.save
 }
 
 
 .WhichMin <- function(x) {
   y <- seq_along(x)[x == min(x)]
-  if (length(y) > 1L) {
+  if (length(y) > 1) {
     set.seed(42)
-    y <- sample(y, 1L)
+    y <- sample(y, 1)
   }
-  return(y)
+  y
 }

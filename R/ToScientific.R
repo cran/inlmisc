@@ -1,34 +1,34 @@
 #' Format for Scientific Notation
 #'
-#' This function formats numbers in scientific notation \eqn{m \times 10^{n}}{m x 10^n}.
+#' Format numbers in scientific notation \eqn{m \times 10^{n}}{m x 10^n}.
 #'
-#' @param x 'numeric'.
-#'   Vector of numbers
-#' @param digits 'integer'.
+#' @param x 'numeric' vector.
+#'   Numbers
+#' @param digits 'integer' count.
 #'   Desired number of digits after the decimal point.
-#' @param type 'character'.
+#' @param type 'character' string.
 #'   Specify \code{"latex"} to return numbers in the LaTeX markup language (default),
 #'   or \code{"plotmath"} to return as \code{\link[grDevices]{plotmath}} expressions.
-#' @param na 'character'.
-#'   String to be used for missing values (\code{NA}).
+#' @param na 'character' string.
+#'   Value to use for missing values (\code{NA}).
 #'   By default, no string substitution is made for missing values.
-#' @param delimiter 'character'.
+#' @param delimiter 'character' string.
 #'   Delimiter for LaTeX mathematical mode, inline (\code{$...$}) by default.
 #'   Does not apply to missing value strings.
-#' @param scipen 'integer'.
-#'   A penalty to be applied when deciding to format numeric values in scientific or fixed notation.
+#' @param scipen 'integer' count.
+#'   Penalty to be applied when deciding to format numeric values in scientific or fixed notation.
 #'   Positive values bias towards fixed and negative towards scientific notation:
 #'   fixed notation will be preferred unless it is more than \code{scipen} digits wider.
 #'   Specify \code{NULL} to format all numbers, with the exception of zero, in scientific notation.
-#' @param big.mark 'character'.
+#' @param big.mark 'character' string.
 #'   Mark inserted between every big interval before the decimal point.
 #'   By default, commas are placed every 3 decimal places for numbers larger than 999.
 #' @param ...
 #'   Not used
 #'
 #' @return
-#'   For \code{type = "latex"}, returns a 'character' vector of the same length as argument \code{x}.
-#'   And for \code{type = "plotmath"}, returns an 'expression' vector of the same length as \code{x}.
+#'   When \code{type = "latex"} returns a 'character' vector of the same length as argument \code{x}.
+#'   And when \code{type = "plotmath"} returns a 'expression' vector of the same length as \code{x}.
 #'
 #' @author J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center
 #'
@@ -38,14 +38,14 @@
 #'
 #' @examples
 #' x <- c(-1e+09, 0, NA, pi * 10^(-5:5))
-#' ToScientific(x, digits = 2L, na = "---")
+#' ToScientific(x, digits = 2, na = "---")
 #'
-#' ToScientific(x, digits = 2L, scipen = 0L)
+#' ToScientific(x, digits = 2, scipen = 0)
 #'
 #' x <- seq(0, 20000, by = 4000)
 #' ToScientific(x, scipen = 0)
 #'
-#' lab <- ToScientific(x, type = "plotmath", scipen = 0L)
+#' lab <- ToScientific(x, type = "plotmath", scipen = 0)
 #' i <- seq_along(x)
 #' plot(i, type = "n", xaxt = "n", yaxt = "n", ann = FALSE)
 #' axis(1, i, labels = lab)
@@ -59,15 +59,14 @@ ToScientific <- function(x, digits=NULL, type=c("latex", "plotmath"),
   # check arguments
   checkmate::assertNumeric(x)
   checkmate::assertCount(digits, null.ok=TRUE)
+  if (missing(type) && methods::hasArg("lab.type"))  # backward compatibility
+    type <- list(...)$lab.type
+  else
+    type <- match.arg(type)
   checkmate::assertString(na, na.ok=TRUE)
   checkmate::assertString(delimiter)
   checkmate::assertInt(scipen, na.ok=TRUE, null.ok=TRUE)
   checkmate::assertString(big.mark)
-
-  if (missing(type) && methods::hasArg("lab.type"))
-    type <- list(...)$lab.type  # include for backward compatibility
-  else
-    type <- match.arg(type)
 
   x <- as.numeric(x)
 
@@ -126,5 +125,5 @@ ToScientific <- function(x, digits=NULL, type=c("latex", "plotmath"),
     }))
   }
 
-  return(s)
+  s
 }

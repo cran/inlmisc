@@ -1,27 +1,31 @@
-#' Create a Web Map Using The National Map Services
+#' Create a Web Map Using TNM Services
 #'
-#' This function creates a \href{http://leafletjs.com/}{Leaflet} map widget with base maps offered through
+#' Create a \href{http://leafletjs.com/}{Leaflet} map widget with base maps offered through
 #' The National Map (\href{https://nationalmap.gov/}{TNM}).
 #' Information about the content of these base maps can be found within the
 #' \href{https://viewer.nationalmap.gov/help/3.0\%20TNM\%20Base\%20Maps.htm}{TNM Base Maps} document.
 #'
-#' @param maps 'character'.
-#'   Vector of TNM base maps to include in the web map.
+#' @param maps 'character' vector.
+#'   TNM base maps to include in the web map.
 #'   Possible maps include \code{"Topo"}, \code{"Imagery"},
-#'   \code{"Imagery Topo"}, \code{"Hydrography"}, and \code{"Hill Shade"}.
+#'   \code{"Imagery Topo"}, \code{"Hydrography"}, \code{"Hill Shade"}, and \code{"Blank"}.
 #'   All base maps are included by default.
 #' @param ...
 #'   Arguments to be passed to the \code{\link[leaflet]{leaflet}} function.
-#' @param collapsed 'logical'.
-#'   If true, the layers control will be rendered as an icon that expands when hovered over.
+#' @param collapsed 'logical' flag.
+#'   Whether the layers control should be rendered as an icon that expands when hovered over.
+#' @param service 'character' string.
+#'   Mapping services for accessing TNM base-map tiles.
+#'   Select \code{"rest"} for representational state transfer services (the default) and
+#'   \code{"wms"} for web map services.
 #'
-#' @details A number of \href{https://viewer.nationalmap.gov/services/}{map services} are offered through TNM.
-#'   There are no use restrictions on these services.
-#'   However, map content is limited to the United States and Territories.
-#'   This function integrates TNM services within an interactive web map using
+#' @details Map \href{https://viewer.nationalmap.gov/services/}{service endpoints}
+#'   are offered through TNM with no use restrictions.
+#'   However, map content is limited to the United States and territories.
+#'   This function integrates TNM endpoint services within an interactive web map using
 #'   \href{https://rstudio.github.io/leaflet/}{Leaflet for R}.
 #'
-#' @return Returns a 'leaflet' Hypertext Markup Language (HTML) widget object with TNM base maps.
+#' @return Returns an object of class 'leaflet', a hypertext markup language (HTML) widget object.
 #'   See example for instructions on how to add additional graphic layers
 #'   (such as points, lines, and polygons) to the map widget.
 #'   Graphic layers added to the web map must be in latitude and longitude using WGS 84
@@ -36,46 +40,51 @@
 #' @export
 #'
 #' @examples
-#' map <- CreateWebMap()
+#' map <- CreateWebMap(collapsed = FALSE)
 #' lng <- c(-112.049705, -122.171257, -77.367458, -149.803565, -80.248344)
 #' lat <- c(43.517810, 37.456526, 38.947206, 61.187905, 26.080860)
 #' map <- leaflet::addMarkers(map, lng, lat)
 #' map
 #'
 
-CreateWebMap <- function(maps, ..., collapsed=TRUE) {
+CreateWebMap <- function(maps, ..., collapsed=TRUE, service=c("rest", "wms")) {
 
+  # check arguments
+  basemap <- c("Topo"         = "USGSTopo",
+               "Imagery"      = "USGSImageryOnly",
+               "Imagery Topo" = "USGSImageryTopo",
+               "Hydrography"  = "USGSHydroCached",
+               "Hill Shade"   = "USGSShadedReliefOnly",
+               "Blank"        = "USGSTNMBlank")
+  if (!missing(maps))
+    basemap <- basemap[match.arg(maps, names(basemap), several.ok=TRUE)]
   checkmate::assertFlag(collapsed)
+  service <- match.arg(service)
 
-  # establish base map layers
-  basemap <- c("Topo"          = "USGSTopo",
-               "Imagery"       = "USGSImageryOnly",
-               "Imagery Topo"  = "USGSImageryTopo",
-               "Hydrography"   = "USGSHydroCached",
-               "Hill Shade"    = "USGSShadedReliefOnly")
-  if (!missing(maps)) {
-    checkmate::assertSubset(maps, names(basemap), empty.ok=FALSE)
-    basemap <- basemap[maps]
-  }
+  # define attribution
+  att <- sprintf("<a href='%s' title='%s' target='_blank'>%s</a> | <a href='%s' title='%s' target='_blank'>%s</a>",
+                 "https://www.usgs.gov/", "United States Geological Survey", "USGS",
+                 "https://www.usgs.gov/laws/policies_notices.html", "USGS policies and notices", "Policies")
 
   # initialize map widget
   map <- leaflet::leaflet(...)
 
-  # specify attribution
-  att <- paste("<a href='https://www.usgs.gov/' title='United States Geological Survey' target='_blank'>USGS</a> |",
-               "<a href='https://www.usgs.gov/laws/policies_notices.html' title='USGS policies and notices' target='_blank'>Policies</a>")
-
-  # construct url for map tiles
-  GetURL <- function(service, host="basemap.nationalmap.gov") {
-    sprintf("https://%s/arcgis/services/%s/MapServer/WmsServer?", host, service)
-  }
-
-  # add tiled base maps
-  url <- GetURL(basemap)
-  opt <- leaflet::WMSTileOptions(version="1.3.0", maxNativeZoom=15)
-  for (i in seq_along(basemap)) {
-    map <- leaflet::addWMSTiles(map, url[i], group=names(basemap)[i], attribution=att,
-                                options=opt, layers="0")
+  # add base maps
+  domain <- "https://basemap.nationalmap.gov"
+  if (service == "rest") {
+    url <- sprintf("%s/ArcGIS/rest/services/%s/MapServer/tile/{z}/{y}/{x}", domain, basemap)
+    opt <- leaflet::tileOptions(minZoom=3, maxZoom=16)
+    for (i in seq_along(basemap)) {
+      map <- leaflet::addTiles(map, urlTemplate=url[i], attribution=att,
+                               group=names(basemap)[i], options=opt)
+    }
+  } else {
+    url <- sprintf("%s/arcgis/services/%s/MapServer/WmsServer?", domain, basemap)
+    opt <- leaflet::WMSTileOptions(format="image/jpeg", version="1.3.0", minZoom=3, maxZoom=16)
+    for (i in seq_along(basemap)) {
+      map <- leaflet::addWMSTiles(map, url[i], group=names(basemap)[i],
+                                  options=opt, attribution=att, layers="0")
+    }
   }
 
   # add basemap control feature
@@ -88,6 +97,6 @@ CreateWebMap <- function(maps, ..., collapsed=TRUE) {
   # add scale bar
   map <- leaflet::addScaleBar(map, position="bottomleft")
 
-  # return html widget
-  return(map)
+  # return map widget
+  map
 }

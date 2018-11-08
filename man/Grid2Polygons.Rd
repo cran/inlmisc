@@ -12,38 +12,36 @@ Grid2Polygons(grd, zcol = 1, level = FALSE, at = NULL, cuts = 20,
 \item{grd}{'SpatialGridDataFrame', 'SpatialPixelsDataFrame', or 'Raster*'.
 Spatial grid}
 
-\item{zcol}{'character' or 'integer'.
+\item{zcol}{'character' string or 'integer' count.
 Layer to extract from a multi-layer spatial grid.}
 
-\item{level}{'logical'.
+\item{level}{'logical' flag.
 If true, a set of levels is used to partition the range of attribute values, its default is false.}
 
-\item{at}{'numeric'.
-Vector giving breakpoints along the range of attribute values.}
+\item{at}{'numeric' vector.
+Breakpoints along the range of attribute values.}
 
-\item{cuts}{'integer'.
+\item{cuts}{'integer' count.
 Number of levels the range of attribute values would be divided into.}
 
-\item{pretty}{'logical'.
+\item{pretty}{'logical' flag.
 Whether to use pretty cut locations.}
 
-\item{xlim}{'numeric'.
-Vector of length 2 giving left and right limits of the spatial grid,
+\item{xlim}{'numeric' vector of length 2.
+Left and right limits of the spatial grid, data outside these limits is excluded.}
+
+\item{ylim}{'numeric' vector of length 2.
+Lower and upper limits of the spatial grid,
 data outside these limits is excluded.}
 
-\item{ylim}{'numeric'.
-Vector of length 2 giving lower and upper limits of the spatial grid,
-data outside these limits is excluded.}
-
-\item{zlim}{'numeric'.
-Vector of length 2 giving minimum and maximum limits of the attribute variable,
-data outside these limits is excluded.}
+\item{zlim}{'numeric' vector of length 2.
+Minimum and maximum limits of the attribute variable, data outside these limits is excluded.}
 
 \item{ply}{'SpatialPolygons', or 'SpatialGridDataFrame'.
 Cropping polygon}
 }
 \value{
-Returns an object of 'SpatialPolygonsDataFrame'.
+Returns an object of class 'SpatialPolygonsDataFrame'.
   The objects \code{data} slot is a data frame, number of rows equal to
   the number of \code{Polygons} objects and a single column containing attribute values.
   If \code{level} is true, attribute values are set equal to the midpoint between breakpoints.
@@ -51,7 +49,7 @@ Returns an object of 'SpatialPolygonsDataFrame'.
   with clockwise meaning island, and counter-clockwise meaning hole.
 }
 \description{
-This function converts gridded spatial data to spatial polygons.
+Convert gridded spatial data to spatial polygons.
 Image files created with spatial polygons are reduced in size,
 can easily be transformed from one coordinate reference system to another,
 and result in much "cleaner" images when plotted.
@@ -92,7 +90,7 @@ text(cbind(x = x + 0.1, y = rev(y + 0.1)),
      labels = 1:((m + 1) * (n + 1)), cex = 0.6)
 at <- 1:ceiling(max(z, na.rm = TRUE))
 plys <- Grid2Polygons(grd, level = TRUE, at = at)
-cols <- GetTolColors(length(plys), scheme = "bright", alpha = 0.3)
+cols <- GetColors(length(plys), scheme = "bright", alpha = 0.3)
 sp::plot(plys, add = TRUE, col = cols)
 zz <- plys[[1]]
 legend("top", legend = zz, fill = cols, bty = "n", xpd = TRUE,
@@ -106,7 +104,7 @@ p2 <- sp::Polygon(v2, hole = TRUE)
 p3 <- sp::Polygon(v3, hole = FALSE)
 p <- sp::SpatialPolygons(list(sp::Polygons(list(p1, p2, p3), 1)))
 plys <- Grid2Polygons(grd, level = TRUE, at = at, ply = p)
-cols <- GetTolColors(length(zz), scheme = "bright", alpha = 0.6)
+cols <- GetColors(length(zz), scheme = "bright", alpha = 0.6)
 cols <- cols[zz \%in\% plys[[1]]]
 sp::plot(plys, col = cols, add = TRUE)
 text(cbind(xc, yc), labels = z)
@@ -133,7 +131,8 @@ y <- seq(from = 6478705, length.out = nrow(m), by = 10)
 r <- raster::raster(m, xmn = min(x), xmx = max(x), ymn = min(y), ymx = max(y),
                     crs = "+init=epsg:27200")
 plys <- Grid2Polygons(r, level = TRUE)
-sp::plot(plys, col = terrain.colors(length(plys)), border = "#515151")
+cols <- GetColors(length(plys), scheme = "DEM screen")
+sp::plot(plys, col = cols, border = "#515151")
 
 }
 \references{

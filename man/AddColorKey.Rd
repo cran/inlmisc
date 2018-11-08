@@ -4,74 +4,72 @@
 \alias{AddColorKey}
 \title{Add Color Key to Plot}
 \usage{
-AddColorKey(mai, is.categorical, breaks, col, at = NULL, labels = TRUE,
-  scipen = getOption("scipen", 0L), explanation = NULL, padx = 0.2,
-  log = FALSE)
+AddColorKey(breaks, is.categorical = FALSE, col = NULL, at = NULL,
+  labels = TRUE, scipen = getOption("scipen", 0), explanation = NULL,
+  padx = 0.2, log = FALSE, mai = NULL)
 }
 \arguments{
-\item{mai}{'numeric'.
-Vector of the form \code{c(bottom, left, top, right)} which gives the margin size specified in inches (optional).}
+\item{breaks}{'numeric' vector.
+Finite breakpoints for the colors:
+must have one more breakpoint than color and be in increasing order.}
 
-\item{is.categorical}{'logical'.
+\item{is.categorical}{'logical' flag.
 If true, color-key values represent categorical data;
 otherwise, these data values are assumed continuous.}
 
-\item{breaks}{'numeric'.
-Set of finite numeric breakpoints for the colors:
-must have one more breakpoint than color and be in increasing order.}
-
-\item{col}{'character'.
-Vector of colors to be used in the plot.
+\item{col}{'character' vector.
+Colors to be used in the plot.
 This argument requires \code{breaks} specification for continuous data.
 For continuous data there should be one less color than breaks; whereas,
 categorical data require a color for each category.}
 
-\item{at}{'numeric'.
-The points at which tick-marks and labels are to be drawn,
+\item{at}{'numeric' vector.
+Points at which tick-marks and labels are to be drawn,
 only applicable for continuous data.
 The tick marks will be located at the color breaks if the length of \code{at} is
 greater than or equal to one minus the length of \code{breaks}.
 Note that tick-mark labels are omitted where they would abut or overlap previously drawn labels
 (labels are drawn left to right).}
 
-\item{labels}{'logical', 'character', 'expression', or 'numeric'.
-Can either be a logical value specifying whether (numerical) annotations are to be made at the tick marks,
-or a character or expression vector of labels to be placed at the tick points.}
+\item{labels}{'logical' flag, 'character' vector, 'expression' vector, 'numeric' vector, or 'factor' vector.
+Can either be a flag specifying whether (numerical) annotations are to be made at the tick marks,
+or a vector of labels to be placed at the tick points.}
 
-\item{scipen}{'integer'.
-A penalty to be applied when deciding to format numeric values in scientific or fixed notation.
+\item{scipen}{'integer' count.
+Penalty to be applied when deciding to format numeric values in scientific or fixed notation.
 Positive values bias towards fixed and negative towards scientific notation:
 fixed notation will be preferred unless it is more than \code{scipen} digits wider.
 Specify \code{NULL} to format all numbers, with the exception of zero, in scientific notation.}
 
-\item{explanation}{'character'.
+\item{explanation}{'character' string.
 Label that describes the data values.}
 
-\item{padx}{'numeric'.
+\item{padx}{'numeric' number.
 Inner padding for the left and right margins specified in inches.}
 
-\item{log}{'logical'.
+\item{log}{'logical' flag.
 Whether the axis is to be logarithmic.}
+
+\item{mai}{'numeric' vector of length 4.
+Margin size in inches and of the form \code{c(bottom, left, top, right)}.}
 }
 \value{
 Used for the side-effect of a color key drawn on the current graphics device.
 }
 \description{
-This function can be used to add a color key to a plot.
+Add a color key to a plot.
 }
 \examples{
 op <- par(mfrow = c(7, 1), omi = c(1, 1, 1, 1), mar = c(2, 3, 2, 3))
-AddColorKey(is.categorical = FALSE, breaks = 0:10,
-            explanation = "Example description of data variable.")
-AddColorKey(is.categorical = FALSE, breaks = 0:1000, at = pretty(0:1000))
-AddColorKey(is.categorical = FALSE, breaks = c(0, 1, 2, 4, 8, 16))
+AddColorKey(breaks = 0:10, explanation = "Example description of data variable.")
+AddColorKey(breaks = 0:1000, at = pretty(0:1000))
+AddColorKey(breaks = c(0, 1, 2, 4, 8, 16))
 breaks <- c(pi * 10^(-5:5))
-AddColorKey(is.categorical = FALSE, breaks = breaks, log = TRUE)
-is <- as.logical(seq_along(breaks) \%\% 2)
-AddColorKey(is.categorical = FALSE, breaks = breaks, at = breaks[is],
+AddColorKey(breaks = breaks, log = TRUE)
+AddColorKey(breaks = breaks, at = breaks[as.logical(seq_along(breaks) \%\% 2)],
             scipen = NULL, log = TRUE)
 AddColorKey(is.categorical = TRUE, labels = LETTERS[1:5])
-AddColorKey(is.categorical = TRUE, col = GetTolColors(5, scheme = "bright"))
+AddColorKey(is.categorical = TRUE, col = GetColors(5, scheme = "bright"))
 par(op)
 
 }

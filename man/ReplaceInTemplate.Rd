@@ -4,20 +4,20 @@
 \alias{ReplaceInTemplate}
 \title{Replace Values in a Template Text}
 \usage{
-ReplaceInTemplate(text, replacement)
+ReplaceInTemplate(text, replacement = list())
 }
 \arguments{
-\item{text}{'character'.
-Vector of character strings, that is the template text.}
+\item{text}{'character' vector.
+Template text}
 
 \item{replacement}{'list'.
 Values to replace in \code{text}.}
 }
 \value{
-Returns a vector of character strings after key replacement.
+Returns a 'character' vector of strings after key replacement.
 }
 \description{
-This function replaces keys within special markups in a template text with specified values.
+Replace keys within special markups in a template text with specified values.
 Pieces of \R code can be put into the markups of the template text,
 and are evaluated during the replacement.
 }
@@ -27,6 +27,7 @@ Keys are enclosed into markups of the form \code{$(KEY)} and \code{@\{CODE\}}.
 \examples{
 text <- c("Hello $(name)!", "$(a) + $(b) = @{$(a) + $(b)}",
           "pi = @{format(pi, digits = 5)}")
+cat(text, sep = "\\n")
 replacement <- list(name = "world", a = 1, b = 2)
 cat(ReplaceInTemplate(text, replacement), sep = "\\n")
 

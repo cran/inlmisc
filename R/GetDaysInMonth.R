@@ -1,12 +1,12 @@
-#' Number of Days in a Year and Month
+#' Get Number of Days in a Year and Month
 #'
-#' This function determines the number of days in a year and month.
+#' Calculate the number of days in a year and month.
 #'
-#' @param x 'integer'.
-#'   Vector of year and month values, with a required date format of \code{YYYYMM}.
+#' @param x 'integer' vector.
+#'   Year and month, with a required date format of \code{YYYYMM}.
 #'
-#' @return Returns an 'integer' vector indicating the number of days
-#'   in each year and month value specified in \code{x}.
+#' @return Returns a 'integer' vector indicating the number of days
+#'   for each year and month value in \code{x}.
 #'
 #' @author J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center
 #'
@@ -19,15 +19,13 @@
 #'
 
 GetDaysInMonth <- function(x) {
-
   checkmate::assertCharacter(x, pattern="^\\d{6}$", any.missing=FALSE)
-
   d <- as.Date(paste0(x, "28"), format="%Y%m%d")
   m <- format(d, format="%m")
   for (i in seq_along(d)) {
     while (format(d[i], format="%m") == m[i]) {
-      d[i] <- d[i] + 1L
+      d[i] <- d[i] + 1
     }
   }
-  return(as.integer(format(d - 1L, format="%d")))
+  as.integer(format(d - 1, format="%d"))
 }

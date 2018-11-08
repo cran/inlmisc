@@ -2,33 +2,34 @@
 % Please edit documentation in R/BumpDisconnectCells.R
 \name{BumpDisconnectCells}
 \alias{BumpDisconnectCells}
-\title{Adjustment for Vertically Disconnected Cells}
+\title{Adjust Vertically Disconnected Cells}
 \usage{
 BumpDisconnectCells(rs, min.overlap = 2, bump.by = 0.1,
   max.itr = 10000)
 }
 \arguments{
 \item{rs}{'Raster*'.
-A collection of two raster layers, the first and second layers represent
+Collection of two raster layers, the first and second layers represent
 the upper and lower surface of a 3D model layer.}
 
-\item{min.overlap}{'numeric'.
+\item{min.overlap}{'numeric' number.
 Minimum vertical overlap between horizontally adjacent model cells.}
 
-\item{bump.by}{'numeric'.
+\item{bump.by}{'numeric' number.
 Amount to decrease a cell value by during each iteration of the algorithm.}
 
-\item{max.itr}{'numeric'.
+\item{max.itr}{'integer' count.
 Maximum number of iterations.}
 }
 \value{
-Returns a 'RasterLayer' that can be added to \code{rs[[2]]} to ensure connectivity between model layer cells.
+Returns an object of class 'RasterLayer' that can be added to
+  \code{rs[[2]]} to ensure connectivity between model layer cells.
   Cell values in the returned raster grid represent vertical adjustments.
 }
 \description{
 Given upper and lower surfaces (raster layers) of a three-dimensional (3D) model layer,
 this function incrementally decreases lower cell values until
-a minimum vertical overlap between adjacent model cells is achieved.
+a minimum vertical overlap between adjacent model cells is satisfied.
 }
 \details{
 During each iteration of the algorithm:
@@ -46,7 +47,7 @@ r_top[] <- rnorm(raster::ncell(r_top), mean = 12)
 r_bot[] <- rnorm(raster::ncell(r_bot), mean = 10)
 rs <- raster::stack(r_top, r_bot)
 r <- BumpDisconnectCells(rs, min.overlap = 0.1)
-raster::plot(r, col = GetTolColors(255, reverse = TRUE))
+raster::plot(r, col = GetColors(255, reverse = TRUE))
 summary(r[])
 
 r_bot_new <- r_bot + r

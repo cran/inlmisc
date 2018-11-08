@@ -1,35 +1,33 @@
 #' Convert Spatial Grids to Polygons
 #'
-#' This function converts gridded spatial data to spatial polygons.
+#' Convert gridded spatial data to spatial polygons.
 #' Image files created with spatial polygons are reduced in size,
 #' can easily be transformed from one coordinate reference system to another,
 #' and result in much "cleaner" images when plotted.
 #'
 #' @param grd 'SpatialGridDataFrame', 'SpatialPixelsDataFrame', or 'Raster*'.
 #'    Spatial grid
-#' @param zcol 'character' or 'integer'.
+#' @param zcol 'character' string or 'integer' count.
 #'    Layer to extract from a multi-layer spatial grid.
-#' @param level 'logical'.
+#' @param level 'logical' flag.
 #'    If true, a set of levels is used to partition the range of attribute values, its default is false.
-#' @param at 'numeric'.
-#'    Vector giving breakpoints along the range of attribute values.
-#' @param cuts 'integer'.
+#' @param at 'numeric' vector.
+#'    Breakpoints along the range of attribute values.
+#' @param cuts 'integer' count.
 #'    Number of levels the range of attribute values would be divided into.
-#' @param pretty 'logical'.
+#' @param pretty 'logical' flag.
 #'    Whether to use pretty cut locations.
-#' @param xlim 'numeric'.
-#'    Vector of length 2 giving left and right limits of the spatial grid,
+#' @param xlim 'numeric' vector of length 2.
+#'    Left and right limits of the spatial grid, data outside these limits is excluded.
+#' @param ylim 'numeric' vector of length 2.
+#'    Lower and upper limits of the spatial grid,
 #'    data outside these limits is excluded.
-#' @param ylim 'numeric'.
-#'    Vector of length 2 giving lower and upper limits of the spatial grid,
-#'    data outside these limits is excluded.
-#' @param zlim 'numeric'.
-#'    Vector of length 2 giving minimum and maximum limits of the attribute variable,
-#'    data outside these limits is excluded.
+#' @param zlim 'numeric' vector of length 2.
+#'    Minimum and maximum limits of the attribute variable, data outside these limits is excluded.
 #' @param ply 'SpatialPolygons', or 'SpatialGridDataFrame'.
 #'    Cropping polygon
 #'
-#' @return Returns an object of 'SpatialPolygonsDataFrame'.
+#' @return Returns an object of class 'SpatialPolygonsDataFrame'.
 #'   The objects \code{data} slot is a data frame, number of rows equal to
 #'   the number of \code{Polygons} objects and a single column containing attribute values.
 #'   If \code{level} is true, attribute values are set equal to the midpoint between breakpoints.
@@ -85,7 +83,7 @@
 #'      labels = 1:((m + 1) * (n + 1)), cex = 0.6)
 #' at <- 1:ceiling(max(z, na.rm = TRUE))
 #' plys <- Grid2Polygons(grd, level = TRUE, at = at)
-#' cols <- GetTolColors(length(plys), scheme = "bright", alpha = 0.3)
+#' cols <- GetColors(length(plys), scheme = "bright", alpha = 0.3)
 #' sp::plot(plys, add = TRUE, col = cols)
 #' zz <- plys[[1]]
 #' legend("top", legend = zz, fill = cols, bty = "n", xpd = TRUE,
@@ -99,7 +97,7 @@
 #' p3 <- sp::Polygon(v3, hole = FALSE)
 #' p <- sp::SpatialPolygons(list(sp::Polygons(list(p1, p2, p3), 1)))
 #' plys <- Grid2Polygons(grd, level = TRUE, at = at, ply = p)
-#' cols <- GetTolColors(length(zz), scheme = "bright", alpha = 0.6)
+#' cols <- GetColors(length(zz), scheme = "bright", alpha = 0.6)
 #' cols <- cols[zz %in% plys[[1]]]
 #' sp::plot(plys, col = cols, add = TRUE)
 #' text(cbind(xc, yc), labels = z)
@@ -126,7 +124,8 @@
 #' r <- raster::raster(m, xmn = min(x), xmx = max(x), ymn = min(y), ymx = max(y),
 #'                     crs = "+init=epsg:27200")
 #' plys <- Grid2Polygons(r, level = TRUE)
-#' sp::plot(plys, col = terrain.colors(length(plys)), border = "#515151")
+#' cols <- GetColors(length(plys), scheme = "DEM screen")
+#' sp::plot(plys, col = cols, border = "#515151")
 #'
 
 Grid2Polygons <- function(grd, zcol=1, level=FALSE, at=NULL, cuts=20,
@@ -134,9 +133,8 @@ Grid2Polygons <- function(grd, zcol=1, level=FALSE, at=NULL, cuts=20,
                           ply=NULL) {
 
   # check arguments
-  if (!inherits(grd, c("BasicRaster", "SpatialPixelsDataFrame", "SpatialGridDataFrame")))
-    stop("Assertion on 'grd' failed: Wrong class.")
-  checkmate::qassert(zcol, c("S1[0,)", "X1[0,)"))
+  stopifnot(inherits(grd, c("BasicRaster", "SpatialPixelsDataFrame", "SpatialGridDataFrame")))
+  checkmate::qassert(zcol, c("S1", "X1[0,)"))
   checkmate::assertFlag(level)
   checkmate::assertNumeric(at, any.missing=FALSE, min.len=2, null.ok=TRUE)
   checkmate::assertCount(cuts, positive=TRUE)
@@ -183,7 +181,7 @@ Grid2Polygons <- function(grd, zcol=1, level=FALSE, at=NULL, cuts=20,
       else
         at <- seq(zlim[1], zlim[2], length.out=cuts)
     }
-    zc <- at[1:(length(at) - 1L)] + diff(at) / 2
+    zc <- at[1:(length(at) - 1)] + diff(at) / 2
     z <- zc[findInterval(grd[], at, rightmost.closed=TRUE)]
   } else {
     z <- as.numeric(grd[])
@@ -200,15 +198,15 @@ Grid2Polygons <- function(grd, zcol=1, level=FALSE, at=NULL, cuts=20,
   ymax <- raster::ymax(grd)
   x <- seq(xmin, xmax, by=dx)
   y <- seq(ymin, ymax, by=dy)
-  nnodes <- (m + 1L) * (n + 1L)
+  nnodes <- (m + 1) * (n + 1)
   nelems <- m * n
   nodes <- 1:nnodes
   elems <- 1:nelems
-  coords <- cbind(x=rep(x, m + 1L), y=rep(rev(y), each=n + 1L))
-  n1 <- unlist(lapply(1:m, function(i) seq(1L, n) + (i - 1L) * (n + 1L)))
-  n2 <- n1 + 1L
-  n4 <- unlist(lapply(1:m, function(i) seq(1L, n) + i * (n + 1L)))
-  n3 <- n4 + 1L
+  coords <- cbind(x=rep(x, m + 1), y=rep(rev(y), each=n + 1))
+  n1 <- unlist(lapply(1:m, function(i) seq(1, n) + (i - 1) * (n + 1)))
+  n2 <- n1 + 1
+  n4 <- unlist(lapply(1:m, function(i) seq(1, n) + i * (n + 1)))
+  n3 <- n4 + 1
   elem.nodes <- cbind(n1, n2, n3, n4)
 
   # define segments in each element
@@ -250,7 +248,7 @@ Grid2Polygons <- function(grd, zcol=1, level=FALSE, at=NULL, cuts=20,
   # crop 'SpatialPolygonsDataFrame' object using polygon argument
   if (!is.null(ply)) sp.polys.df <- raster::crop(sp.polys.df, ply)
 
-  return(sp.polys.df)
+  sp.polys.df
 }
 
 
@@ -268,6 +266,8 @@ Grid2Polygons <- function(grd, zcol=1, level=FALSE, at=NULL, cuts=20,
 
 .FindPolyNodes <- function(s) {
 
+  checkmate::assertMatrix(s, mode="integerish", any.missing=FALSE, ncols=2)
+
   # remove duplicate segments
   id <- paste(apply(s, 1, min), apply(s, 1, max))
   s <- s[!id %in% unique(id[duplicated(id)]), ]
@@ -282,5 +282,5 @@ Grid2Polygons <- function(grd, zcol=1, level=FALSE, at=NULL, cuts=20,
   # close polygon by joining the first point to the last point
   poly.nodes <- lapply(poly.nodes, function(i) c(i, i[1]))
 
-  return(poly.nodes)
+  poly.nodes
 }

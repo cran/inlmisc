@@ -1,8 +1,8 @@
-#' Read Code Chunks
+#' Read Knitr Code Chunks
 #'
-#' This function reads \bold{knitr} code chunks into the current session.
+#' Read \bold{knitr} code chunks into the current session.
 #'
-#' @param path 'character'.
+#' @param path 'character' string.
 #'   Path name of the \bold{knitr} source document (\file{.Rnw} or \file{.Rmd}),
 #'   or R code that has been extracted from a \bold{knitr} source document (\file{.R}).
 #'
@@ -12,8 +12,8 @@
 #'   Unnamed chunks (that is, \code{chunk-name} is missing) will be assigned
 #'   names like \code{unnamed-chunk-i} where \code{i} is the chunk number.
 #'
-#' @return Returns a 'list' object of length equal to the number of code chunks in \code{path}.
-#'   Each 'list' component is named after its corresponding chunk name (\code{chunk-name}).
+#' @return Returns a 'list' of length equal to the number of code chunks in \code{path}.
+#'   Each list component is named after its corresponding chunk name (\code{chunk-name}).
 #'   The returned object includes the value of the \code{path} argument as an attribute.
 #'
 #' @author J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center
@@ -25,6 +25,7 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' file <- system.file("misc", "knitr-markdown.Rmd", package = "inlmisc")
 #' chunks <- ReadCodeChunks(file)
 #'
@@ -33,6 +34,7 @@
 #' chunks[["named-chunk-2"]]
 #'
 #' eval(parse(text = unlist(chunks[c("unnamed-chunk-3", "named-chunk-4")])))
+#' }
 #'
 
 ReadCodeChunks <- function(path) {
@@ -62,6 +64,5 @@ ReadCodeChunks <- function(path) {
 
   names(chunks) <- nam  # chunk names
   attr(chunks, "path") <- path  # file path attribute
-
-  return(chunks)
+  chunks
 }

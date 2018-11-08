@@ -4,36 +4,37 @@
 \alias{AddGradientLegend}
 \title{Add Color Gradient Legend to Plot}
 \usage{
-AddGradientLegend(breaks, pal, at = NULL, n = 5, labels = TRUE,
-  scientific = FALSE, title = NULL, strip.dim = c(2, 8), ...)
+AddGradientLegend(breaks, pal = GetColors, at = NULL, n = 5,
+  labels = TRUE, scientific = FALSE, title = NULL, strip.dim = c(2,
+  8), ...)
 }
 \arguments{
-\item{breaks}{'numeric'.
-Set of finite numeric breakpoints for the colors.}
+\item{breaks}{'numeric' vector.
+Finite numeric breakpoints for the colors, must be in increasing order.}
 
 \item{pal}{'function'.
-Color palette}
+Color palette function to be used to assign colors in the legend.}
 
-\item{at}{'numeric'.
-Vector of points at which tick-marks and labels are to be drawn.}
+\item{at}{'numeric' vector.
+Points at which tick-marks and labels are to be drawn.}
 
-\item{n}{'integer'.
+\item{n}{'integer' count.
 Desired number of tick-marks to be drawn.
 Unused if \code{at} argument is specified.}
 
-\item{labels}{'logical' or 'character'.
-Can either be a logical value specifying whether (numerical) annotations are to be made at the tickmarks,
-or a character or expression vector of labels to be placed at the tickpoints.}
+\item{labels}{'logical' flag or 'character' vector.
+Can either be a logical value specifying whether annotations are to be made at the tickmarks,
+or a vector of labels to be placed at the tickpoints.}
 
-\item{scientific}{'logical'.
-Indicates if labels should be formatted for scientific notation,
+\item{scientific}{'logical' flag.
+Whether labels should be formatted for scientific notation,
 see \code{\link{ToScientific}} for details.}
 
-\item{title}{'character'.
+\item{title}{'character' string.
 Title to be placed at the top of the legend.}
 
-\item{strip.dim}{'numeric'.
-Dimensions of the color strip, in picas.}
+\item{strip.dim}{'numeric' vector of length 1 or 2, value is recycled as necessary.
+Dimensions (width and height) of the color strip, in picas.}
 
 \item{...}{Additional arguments to be passed to the \code{\link{GetInsetLocation}} function---used
 to position the legend in the main plot region.}
@@ -42,20 +43,20 @@ to position the legend in the main plot region.}
 Used for the side-effect of a legend drawn on the current graphics device.
 }
 \description{
-This function can be used to add a continuous color gradient legend strip to a plot.
+Add a continuous color gradient legend strip to a plot.
 }
 \examples{
 plot(NA, xlim = c(0, 100), ylim = c(-10, 10),
      xlab = "x", ylab = "y", xaxs = "i", yaxs = "i")
 breaks <- 0:200
-AddGradientLegend(breaks, GetTolColors, title = "Title", loc = "bottomleft")
-AddGradientLegend(breaks, GetTolColors, title = "Title",
-                  loc = "bottomleft", inset = c(0.2, 0.1))
+AddGradientLegend(breaks, title = "Title", loc = "bottomleft")
+AddGradientLegend(breaks, pal = GetColors(scheme = "iridescent"),
+                  title = "Title", loc = "bottomleft", inset = c(0.2, 0.1))
 breaks <- seq(0, 2e+06, length.out = 5)
-AddGradientLegend(breaks, rainbow, loc = "topright", inset = 0.1)
-pal <- function(...) rev(rainbow(...))  # reverse colors in palette
-AddGradientLegend(breaks, pal, scientific = TRUE, strip.dim = c(1, 14),
-                  inset = c(0.2, 0.1))
+AddGradientLegend(breaks, pal = GetColors(scheme = "discrete rainbow"),
+                  scientific = TRUE, strip.dim = c(1, 14), inset = c(0.2, 0.1))
+AddGradientLegend(breaks, pal = GetColors(scheme = "YlOrBr"),
+                  loc = "topright", inset = 0.1)
 
 }
 \seealso{

@@ -14,13 +14,13 @@ that can be extracted using the \code{\link[raster:projection]{crs}} function.
 If missing (the default) the north arrow is point to the top of the plot
 unless the \code{rotate} argument is specified.}
 
-\item{len}{'numeric'.
+\item{len}{'numeric' number.
 Arrow length expressed as a fraction of the plot height, by default is 5-percent.}
 
-\item{lab}{'character'.
+\item{lab}{'character' string.
 North label, by default is \dQuote{N}.}
 
-\item{rotate}{'numeric'.
+\item{rotate}{'numeric' number.
 Arrow offset-rotation in degrees, where positive values are taken to be clockwise.}
 
 \item{...}{Additional arguments to be passed to the \code{\link{GetInsetLocation}} function---used
@@ -30,7 +30,7 @@ to position the north arrow in the main plot region.}
 Used for the side-effect of a north arrow drawn on the current graphics device.
 }
 \description{
-This function can be used to add a north arrow aligned to true north to a plot.
+Add a north arrow aligned to true north to a plot.
 }
 \examples{
 m <- datasets::volcano
@@ -39,7 +39,7 @@ x <- seq(from = 2667405, length.out = ncol(m), by = 10)
 y <- seq(from = 6478705, length.out = nrow(m), by = 10)
 r <- raster::raster(m, xmn = min(x), xmx = max(x), ymn = min(y), ymx = max(y),
                     crs = "+init=epsg:27200")
-PlotMap(r, pal = terrain.colors)
+PlotMap(r, pal = GetColors(scheme = "DEM screen"))
 AddNorthArrow(raster::crs(r), loc = "center")
 AddNorthArrow(raster::crs(r), inset = 0.1)
 AddNorthArrow(raster::crs(r), loc = "topleft", inset = 0.1)

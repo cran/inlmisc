@@ -2,20 +2,20 @@
 % Please edit documentation in R/GetDaysInMonth.R
 \name{GetDaysInMonth}
 \alias{GetDaysInMonth}
-\title{Number of Days in a Year and Month}
+\title{Get Number of Days in a Year and Month}
 \usage{
 GetDaysInMonth(x)
 }
 \arguments{
-\item{x}{'integer'.
-Vector of year and month values, with a required date format of \code{YYYYMM}.}
+\item{x}{'integer' vector.
+Year and month, with a required date format of \code{YYYYMM}.}
 }
 \value{
-Returns an 'integer' vector indicating the number of days
-  in each year and month value specified in \code{x}.
+Returns a 'integer' vector indicating the number of days
+  for each year and month value in \code{x}.
 }
 \description{
-This function determines the number of days in a year and month.
+Calculate the number of days in a year and month.
 }
 \examples{
 GetDaysInMonth(c("199802", "199804", "200412"))
