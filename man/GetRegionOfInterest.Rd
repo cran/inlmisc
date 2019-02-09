@@ -4,11 +4,26 @@
 \alias{GetRegionOfInterest}
 \title{Get Region of Interest}
 \usage{
-GetRegionOfInterest(obj)
+GetRegionOfInterest(x, y = NULL, alpha = NULL, width = NULL, ...)
 }
 \arguments{
-\item{obj}{'SpatialPoints*'.
-Spatial points}
+\item{x, y}{Coordinate vectors of a set of points.
+Alternatively, a single argument \code{x} can be provided.
+Functions \code{\link[grDevices]{xy.coords}} and \code{\link[sp]{coordinates}}
+are used to extract point coordinates.}
+
+\item{alpha}{'numeric' number.
+Value of \eqn{\alpha}, used to implement a generalization of the convex hull
+(Edelsbrunner and others, 1983).
+As \eqn{\alpha} decreases, the shape shrinks.
+Requires that the \pkg{alphahull} and \pkg{maptools} packages are available.
+Note that the \href{https://CRAN.R-project.org/package=alphahull}{alphahull} package
+is released under a restrictive non-free software license.}
+
+\item{width}{'numeric' number.
+Buffer distance from geometry of convex hull.}
+
+\item{...}{Additional arguments to be passed to the \code{\link{gBuffer}} function.}
 }
 \value{
 Returns an object of class 'SpatialPolygons'.
@@ -18,14 +33,36 @@ Create a spatial polygon describing the convex hull of a set of spatial points.
 }
 \examples{
 set.seed(123)
-pts <- sp::SpatialPoints(cbind(x = stats::runif(50), y = stats::runif(50)))
-ply <- GetRegionOfInterest(pts)
-sp::plot(pts, col = "red")
-sp::plot(ply, add = TRUE)
+
+n <- 50
+x <- list(x = stats::runif(n), y = stats::runif(n))
+sp::plot(GetRegionOfInterest(x, width = 0.05), border = "blue", lty = 2)
+sp::plot(GetRegionOfInterest(x), border = "red", add = TRUE)
+sp::plot(GetRegionOfInterest(x, width = -0.05), lty = 2, add = TRUE)
+points(x, pch = 3)
+
+\dontrun{
+n <- 300
+theta <- stats::runif(n, 0, 2 * pi)
+r <- sqrt(stats::runif(n, 0.25^2, 0.50^2))
+x <- sp::SpatialPoints(cbind(0.5 + r * cos(theta), 0.5 + r * sin(theta)),
+                       proj4string = sp::CRS("+init=epsg:32610"))
+sp::plot(GetRegionOfInterest(x, alpha = 0.1, width = 0.05), col = "green")
+sp::plot(GetRegionOfInterest(x, alpha = 0.1), col = "yellow", add = TRUE)
+sp::plot(x, add = TRUE)
+}
 
 }
+\references{
+Edelsbrunner, H., Kirkpatrick, D.G. and Seidel, R., 1983,
+  On the shape of a set of points in the plane:
+  IEEE Transactions on Information Theory, v. 29, no. 4, p. 551--559.
+}
 \seealso{
-\code{\link[grDevices]{chull}}
+Functions \code{\link[grDevices]{chull}} and \code{\link[alphahull]{ashape}}
+  are used to calculate the convex hull and generalized convex hull, respectively.
+
+  Function \code{\link[maptools]{checkPolygonsHoles}} is used to identify polygon holes.
 }
 \author{
 J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center

@@ -6,20 +6,24 @@
 \usage{
 PrintTable(d, colheadings = NULL, align = NULL, digits = NULL,
   label = NULL, title = NULL, headnotes = NULL, footnotes = NULL,
-  nrec = nrow(d), hline = NULL, na = "--", rm_dup = NULL,
-  landscape = FALSE, ...)
+  nrec = nrow(d), hline = NULL, na = "\\\\textemdash",
+  rm_dup = NULL, landscape = FALSE, ...)
 }
 \arguments{
 \item{d}{'data.frame' or 'matrix'.
 Data table to print.}
 
-\item{colheadings}{'character' vector.
+\item{colheadings}{'character' vector, 'matrix', or 'data.frame'.
 Column headings.
+For table objects, rows represent layers of headings (stacked headings).
+The number of columns (or vector length) must equal the number of columns in argument \code{d}.
+A column heading can span multiple columns by repeating adjacent headings.
 Use \code{\\\\\\\\} to code a line break.}
 
 \item{align}{'character' vector.
 Column alignment.
-Specify \code{"l"} to left align, \code{"r"} to right align, and \code{"c"} to center align.}
+Specify \code{"l"} to left align, \code{"r"} to right align, \code{"c"} to center align,
+and \code{"S"} to align on the decimal point.}
 
 \item{digits}{'integer' vector.
 Number of digits to display in the corresponding columns.}
@@ -38,7 +42,8 @@ Label placed below the table caption to provide information pertaining to the ca
 to the table as a whole, or to the column headings.}
 
 \item{footnotes}{'character' string.
-Label placed at the end of the table to provide explanations of individual entries in the table.}
+Label placed at the end of the table to provide explanations
+of individual entries in the table.}
 
 \item{nrec}{'integer' vector of length 1 or 2, value is recycled as necessary.
 Maximum number of records to show on the first page, and every subsequent page, respectively.}
@@ -72,17 +77,17 @@ The applied output format attempts to adhere to the design recommendations
 for tables in United States Geological Survey (USGS) publications.
 }
 \details{
-Requires \code{\\usepackage{caption}}, \code{\\usepackage{booktabs}}, and
-  \code{\\usepackage{makecell}} in the LaTeX preamble.
+Requires \code{\\usepackage{caption}}, \code{\\usepackage{booktabs}},
+  \code{\\usepackage{makecell}}, \code{\\usepackage{multirow}}, and
+  \code{\\usepackage{siunitx}} in the LaTeX preamble.
 }
 \examples{
 d <- datasets::iris[, c(5, 1:4)]
-colheadings <- c("Species of Iris",
-                 "Sepal length \\\\\\\\ (cm)", "Sepal width \\\\\\\\ (cm)",
-                 "Petal length \\\\\\\\ (cm)", "Petal width \\\\\\\\ (cm)")
+colheadings <- rbind(c("Species \\\\\\\\ type", rep("Sepal", 2), rep("Petal", 2)),
+                     c("", rep(c("Length", "Width"), 2)))
 align <- c("l", "c", "c", "c", "c")
 digits <- c(0, 1, 1, 1, 1)
-title <- "Measurements of sepal length and width and petal length and width,
+title <- "Measurements of sepal length and width and petal length and width
           for three species of Iris flower."
 headnotes <- "\\\\textbf{Species of Iris}: includes setosa, versicolor, and virginica.
               \\\\textbf{Abbreviations}: cm, centimeters"
@@ -96,22 +101,40 @@ PrintTable(d, colheadings, align, digits, title = title, headnotes = headnotes,
 \dontrun{
 sink("table-example.tex")
 cat("\\\\documentclass{article}",
-    "\\\\usepackage[labelsep=period,labelfont=bf]{caption}",
+    "\\\\usepackage[labelsep = period, labelfont = bf]{caption}",
+    "\\\\usepackage{siunitx}",
+    "\\\\sisetup{input-ignore = {,}, input-decimal-markers = {.},",
+    "          group-separator = {,}, group-minimum-digits = 4}",
     "\\\\usepackage{booktabs}",
     "\\\\usepackage{makecell}",
+    "\\\\usepackage{multirow}",
     "\\\\usepackage[pdftex]{lscape}",
     "\\\\makeatletter",
     "\\\\setlength{\\\\@fptop}{0pt}",
     "\\\\makeatother",
     "\\\\begin{document}", sep = "\\n")
+
 PrintTable(d, colheadings, align, digits, title = title, headnotes = headnotes,
            footnotes = footnotes, hline = hline, nrec = c(41, 42), rm_dup = 1)
+
 cat("\\\\clearpage\\n")
 PrintTable(datasets::CO2[, c(2, 3, 1, 4, 5)], digits = c(0, 0, 0, 0, 1),
            title = "Carbon dioxide uptake in grass plants.", nrec = 45, rm_dup = 3)
+
 cat("\\\\clearpage\\n")
-PrintTable(datasets::mtcars, title = "Motor trend car road tests.",
+digits <- c(1, 0, 1, 0, 2, 3, 2, 0, 0, 0, 0)
+PrintTable(datasets::mtcars, digits = digits, title = "Motor trend car road tests.",
            landscape = TRUE, include.rownames = TRUE)
+
+cat("\\\\clearpage\\n")
+d <- data.frame(matrix(rep(c(1.2, 1.23, 1121.2, 184, NA, pi, 0.4), 4), ncol = 4))
+d[, 1] <- prettyNum(d[, 1])
+d[, 4] <- formatC(d[, 4], digits = 2, format = "e")
+colheadings <- paste("Wide heading", 1:ncol(d))
+align <- c("S", "S", "S[round-mode = places, round-precision = 2]",
+           "S[scientific-notation = true, table-format = 1.2e+1]")
+PrintTable(d, colheadings, align)
+
 cat("\\\\end{document}\\n")
 sink()
 tools::texi2pdf("table-example.tex", clean = TRUE)  # requires TeX installation
