@@ -61,7 +61,7 @@ See returned \code{solution} component for a suggested value for this arugment.}
 Whether to use parallel computing.
 This argument can also be used to specify the number of cores
 (and number of islands) to employ; by default,
-this is taken from \code{\link[parallel]{detectCores}}.
+this is the number of physical CPUs/cores.
 The \pkg{parallel} and \pkg{doParallel} packages must be
 installed for parallel computing to work.}
 
@@ -108,10 +108,10 @@ The fitness function (see \code{Fitness} argument) is solved using
 k <- 4
 n <- 100
 seed <- 123
-set.seed(seed); numbers <- sort(runif(n))
+set.seed(seed); numbers <- sort.int(runif(n))
 Fitness <- function(string, n, numbers) {
   idxs <- DecodeChromosome(string, n)
-  -sum(numbers[idxs])
+  -1 * sum(numbers[idxs])
 }
 \dontrun{
 out <- FindOptimalSubset(n, k, Fitness, numbers, elitism = 1, run = 10,

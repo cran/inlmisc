@@ -1,6 +1,6 @@
 Package: inlmisc
 Title: Miscellaneous Functions for the USGS INL Project Office
-Version: 0.4.5
+Version: 0.4.7
 Authors@R: person(given=c("Jason", "C."), family="Fisher", role=c("aut", "cre"), email="jfisher@usgs.gov", comment=c(ORCID="0000-0001-9032-8912"))
 Description: A collection of functions for creating high-level graphics,
     performing raster-based analysis, processing MODFLOW-based models,
@@ -8,12 +8,13 @@ Description: A collection of functions for creating high-level graphics,
     accessing color palettes, etc. Used to support packages and scripts written
     by researchers at the United States Geological Survey (USGS)
     Idaho National Laboratory (INL) Project Office.
-Depends: R (>= 3.4.0)
+Depends: R (>= 3.5.0)
 Imports: checkmate, data.table, GA, graphics, grDevices, htmltools,
         htmlwidgets, igraph, knitr, leaflet, methods, parallel, raster,
-        rgdal, rgeos, scales, sp, stats, tools, xtable
-Suggests: alphahull, dichromat, doParallel, doRNG, githubinstall,
-        gstat, maptools, remotes, roxygen2, testthat
+        rgdal, rgeos, rmarkdown, scales, sp, stats, tinytex, tools,
+        xtable, yaml
+Suggests: alphahull, dichromat, doParallel, doRNG, gstat, maptools,
+        remotes, roxygen2, testthat
 License: CC0
 Copyright: This software is in the public domain because it contains
         materials that originally came from the United States
@@ -26,8 +27,8 @@ LazyData: true
 LazyDataCompression: xz
 RoxygenNote: 6.1.1
 NeedsCompilation: yes
-Packaged: 2019-02-09 04:39:58 UTC; jfisher
+Packaged: 2019-08-06 19:36:06 UTC; jfisher
 Author: Jason C. Fisher [aut, cre] (<https://orcid.org/0000-0001-9032-8912>)
 Maintainer: Jason C. Fisher <jfisher@usgs.gov>
 Repository: CRAN
-Date/Publication: 2019-02-09 06:13:19 UTC
+Date/Publication: 2019-08-06 20:00:03 UTC

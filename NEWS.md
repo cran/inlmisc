@@ -1,3 +1,50 @@
+# inlmisc 0.4.7
+
+- In `SetPolygons`, set `checkValidity` argument to 2 and suppress warnings.
+
+# inlmisc 0.4.6
+
+- Add `"usgs_article"` template for R Markdown documents.
+  This template is experimental and subject to change in the future.
+
+- Set `checkValidity` argument to 2 (check and try to buffer by zero distance to repair)
+  in many of the **rgeos** function calls.
+
+- In `AddColorKey`, remove border line around color blocks.
+
+- In `Grid2Polygons`, improved performance;
+  change polygon cropping function from `raster::crop` to `SetPolygons`.
+
+- In `RecreateLibrary`, remove `github` option that allowed package installation from GitHub repositories.
+
+- Add `PrintHelpPages` function, used to print the HTML code associated with
+  help pages of a loaded R package.
+
+- In `BuildVignettes` function, rearrange order of arguments and add `doc` argument,
+  used to specify the directory to write vignette output files.
+
+- In `GetColors` function, add `"bpy"` (blue-pink-yellow) color scheme.
+
+- In `AddPoints` function, change interval to reflect labels, that is,
+  open at the left and closed at right.
+
+- Add `AddIntervals` function, used to add vertical interval symbols to plots.
+  Replaces use of `graphics::arrows` in `PlotGraph` function, and
+  avoids the warning message resulting from an arrow length less than 1/1000 inch.
+
+- In *misc/preamble.tex* file: reduce hyphenation and prevent writing into margin.
+
+- In `PlotGraph` function: improve handling of cases where range of `y` values is zero;
+  extend y-axis limits to prevent symbols from being drawn on an axis limit;
+  change margin line for the main title, axis title, and axis labels;
+  decrease size of upper margin by 0.2 lines;
+  add `add.grid` argument, determines whether to draw a rectangular grid.
+
+- In `PrintFigure` function, allow heading on single figure.
+
+- In `AddSearchButton` function, fix bug that prevented popup from opening
+  when `openPopup` argument is true.
+
 # inlmisc 0.4.5
 
 - In `PlotGraph` function, change alignment of `main` title from center to left-hand side of plot.

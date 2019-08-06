@@ -6,10 +6,11 @@
 \usage{
 PlotGraph(x, y, xlab, ylab, main = NULL, asp = NA, xlim = NULL,
   ylim = NULL, xn = 5, yn = 5, ylog = FALSE, type = "s",
-  lty = 1, lwd = 1, pch = NULL, col = NULL, bg = NA,
+  lty = 1, lwd = 0.7, pch = NULL, col = NULL, bg = NA,
   fill = "none", fillcolor = NULL, pt.cex = 1, xpd = FALSE,
   seq.date.by = NULL, scientific = NA, conversion.factor = NULL,
-  boxwex = 0.8, center.date.labels = FALSE, bg.polygon = NULL)
+  boxwex = 0.8, center.date.labels = FALSE, bg.polygon = NULL,
+  add.grid = TRUE)
 }
 \arguments{
 \item{x, y}{'Date' vector, 'numeric' vector, 'matrix', or 'data.frame'.
@@ -53,8 +54,7 @@ Plot type, possible types are
   \item "w" for box-and-\bold{w}hisker,
   \item "i" for \bold{i}nterval-censored data, see "Details" section below, and
   \item "n" for \bold{n}o plotting.
-}
-Characters in \code{type} are cycled through; such as, "pl" alternately plots points and lines.}
+}}
 
 \item{lty}{'integer' vector.
 Line type, see \code{\link{par}} function for all possible types.
@@ -85,7 +85,7 @@ Colors for basic filled area plots.
 Defaults to a half-transparent variant of the line color (\code{col}).}
 
 \item{pt.cex}{'numeric' number.
-Expansion factor for the points.}
+Expansion factor for the point symbols.}
 
 \item{xpd}{'logical' flag.
 Whether to prevent point and (or) line symbols from being clipped to the plot region.}
@@ -114,6 +114,9 @@ If true, date labels are horizontally centered between \emph{x}-axis tickmarks.}
 If specified, a background polygon is drawn.
 The polygon is described using a list of arguments supplied to the \code{\link{polygon}} function.
 Passed arguments include \code{"x"} and \code{"col"}.}
+
+\item{add.grid}{'logical' flag.
+Whether to draw a rectangular grid.}
 }
 \value{
 Used for the side-effect of a new plot generated.
@@ -125,11 +128,11 @@ Draw a sequence of points, lines, or box-and-whiskers.
 Interval censored data (\code{type = "i"}) requires \code{y} be matrix of 2 columns.
   The first column contains the starting values, the second the ending values.
   Observations are represented using
-    \code{(-Inf, t)} for left censored,
-    \code{(t, Inf)} for right censored,
-    \code{(t, t)} for exact, and
-    \code{(t1, t2)} for an interval.
-  Where infinity is represented as \code{Inf} or \code{NA}, and \code{t} is a numeric value.
+    \code{(y0, Inf)} for right-censored value,
+    \code{(y0, y0)} for exact value, and
+    \code{(-Inf, y1)} for left-censored value, and
+    \code{(y0, y1)} for an interval censored value.
+  Where infinity is represented as \code{Inf} or \code{NA}, and \code{y} is a numeric value.
 }
 \examples{
 n <- 50L
@@ -148,17 +151,17 @@ m <- cbind(as.numeric(x), y)
 col <- GetColors(3, scheme = "bright")
 PlotGraph(m, xlab = "Number", ylab = "Random number", type = "b", pch = 15:17,
           col = col, pt.cex = 0.9)
-legend("topright", LETTERS[1:3], inset = 0.05, col = col, lty = 1, pch = 15:17,
-       pt.cex = 0.9, cex = 0.8, bg = "white")
+legend("topright", LETTERS[1:3], inset = 0.02, col = col, lty = 1, pch = 15:17,
+       pt.cex = 0.9, cex = 0.7, bg = "white")
 
 d <- data.frame(x = as.Date("2008-07-12") + 1:8 * 1000,
                 y0 = c(NA, NA, 1, 3, 1, 4, 2, pi),
                 y1 = c(1, 2, NA, NA, 4, 3, 2, pi))
-PlotGraph(d, type = "i", ylim = c(0, 5))
+PlotGraph(d, type = "i", ylim = c(0, 5), xpd = TRUE)
 
 }
 \seealso{
-\code{\link[graphics]{matplot}}, \code{\link[graphics]{boxplot}}
+\code{\link[graphics]{matplot}}, \code{\link[graphics]{boxplot}}, \code{\link{AddIntervals}}
 }
 \author{
 J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center

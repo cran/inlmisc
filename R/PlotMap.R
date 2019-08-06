@@ -142,6 +142,7 @@
 #' @keywords hplot
 #'
 #' @import rgdal
+#' @importClassesFrom raster BasicRaster
 #'
 #' @export
 #'
@@ -170,7 +171,7 @@
 #'                 "\nand iterpolated on a grid with 40-meter by 40-meter spacing",
 #'                 "using inverse distance weighting.")
 #' PlotMap(r, breaks = breaks, pal = Pal, dms.tick = TRUE, bg.lines = TRUE,
-#'         contour.lines = list(col = "#1F1F1F"), credit = credit,
+#'         contour.lines = list("col" = "#1F1F1F"), credit = credit,
 #'         draw.key = FALSE, simplify = 0)
 #' AddScaleBar(unit = c("KILOMETER", "MILES"), conv.fact = c(0.001, 0.000621371),
 #'             loc = "bottomright", inset = c(0.1, 0.05))
@@ -189,8 +190,8 @@
 #' explanation <- "Elevation on Auckland's Maunga Whau volcano, in meters."
 #' PlotMap(r, extend.z = TRUE, pal = GetColors(scheme = "DEM screen"),
 #'         scale.loc = "bottomright", arrow.loc = "topright",
-#'         explanation = explanation, credit = credit, shade = list(alpha = 0.3),
-#'         contour.lines = list(col = "#1F1F1FA6"), useRaster = TRUE)
+#'         explanation = explanation, credit = credit, shade = list("alpha" = 0.3),
+#'         contour.lines = list("col" = "#1F1F1FA6"), "useRaster" = TRUE)
 #'
 #' out <- PlotMap(r, file = "Rplots1.pdf")
 #' print(out)
@@ -248,7 +249,7 @@ PlotMap <- function(r, layer=1, att=NULL, n=NULL, breaks=NULL,
     rr <- r
     rr[] <- NA
     new.ids <- seq(along=ids)
-    new.att.tbl <- as.data.frame(list(ID=new.ids, att=r.levels))
+    new.att.tbl <- as.data.frame(list("ID"=new.ids, "att"=r.levels))
     suppressWarnings(levels(rr) <- list(new.att.tbl))
     for (i in new.ids) {
       rr[r == ids[i]] <- i
@@ -395,7 +396,7 @@ PlotMap <- function(r, layer=1, att=NULL, n=NULL, breaks=NULL,
       cols <- GetColors(n, stops=c(0.3, 0.9))
     }
   }
-  if (!all(.IsColor(cols))) stop("colors are not valid")
+  if (!all(IsColor(cols))) stop("colors are not valid")
 
   # plot color key
   if (draw.key & n > 0) {
@@ -439,7 +440,7 @@ PlotMap <- function(r, layer=1, att=NULL, n=NULL, breaks=NULL,
     n.dd <- pretty(range(sp::bbox(sl.dd)[2, ]))
     grd.dd <- sp::gridlines(sl.dd, easts=e.dd, norths=n.dd, ndiscr=1000)
 
-    pts.dd <- rgeos::gIntersection(sl.dd, grd.dd, byid=TRUE)
+    pts.dd <- rgeos::gIntersection(sl.dd, grd.dd, byid=TRUE, checkValidity=2L)
     ids <- row.names(pts.dd)
 
     row.names(pts.dd) <- make.names(ids, unique=TRUE)
@@ -520,38 +521,38 @@ PlotMap <- function(r, layer=1, att=NULL, n=NULL, breaks=NULL,
   }
 
   if (is.list(rivers)) {
-    river <- sp::spTransform(rivers[["x"]], r@crs)
+    river <- sp::spTransform(rivers[[1]], r@crs)
     river <- raster::crop(river, raster::extent(graphics::par("usr")))
     if (!is.null(river)) {
       color <- as.character(rivers[["col"]])
       width <- as.numeric(rivers[["lwd"]])
-      color <- ifelse(length(color) == 1 && .IsColor(color), color, "#3399CC")
+      color <- ifelse(length(color) == 1 && IsColor(color), color, "#3399CC")
       width <- ifelse(length(width) == 1 && !is.na(width), width, 0.5)
       sp::plot(river, col=color, lwd=width, add=TRUE)
     }
   }
 
   if (is.list(lakes)) {
-    lake <- sp::spTransform(lakes[["x"]], r@crs)
+    lake <- sp::spTransform(lakes[[1]], r@crs)
     lake <- raster::crop(lake, raster::extent(graphics::par("usr")))
     if (!is.null(lake)) {
       color <- as.character(lakes[["col"]])
       bordr <- as.character(lakes[["border"]])
       width <- as.numeric(lakes[["lwd"]])
-      color <- ifelse(length(color) == 1 && .IsColor(color), color, "#CCFFFF")
-      bordr <- ifelse(length(bordr) == 1 && .IsColor(bordr), bordr, "#3399CC")
+      color <- ifelse(length(color) == 1 && IsColor(color), color, "#CCFFFF")
+      bordr <- ifelse(length(bordr) == 1 && IsColor(bordr), bordr, "#3399CC")
       width <- ifelse(length(width) == 1 && !is.na(width), width, 0.5)
       sp::plot(lake, col=color, border=bordr, lwd=width, add=TRUE)
     }
   }
 
   if (is.list(roads)) {
-    road <- sp::spTransform(roads[["x"]], r@crs)
+    road <- sp::spTransform(roads[[1]], r@crs)
     road <- raster::crop(road, raster::extent(graphics::par("usr")))
     if (!is.null(roads)) {
       color <- as.character(roads[["col"]])
       width <- as.numeric(roads[["lwd"]])
-      color <- ifelse(length(color) == 1 && .IsColor(color), color, "#666666")
+      color <- ifelse(length(color) == 1 && IsColor(color), color, "#666666")
       width <- ifelse(length(width) == 1 && !is.na(width), width, 0.25)
       sp::plot(road, col=color, lwd=width, add=TRUE)
     }
@@ -599,7 +600,7 @@ PlotMap <- function(r, layer=1, att=NULL, n=NULL, breaks=NULL,
 
   if (!is.null(arrow.loc)) AddNorthArrow(r@crs, loc=arrow.loc, inset=0.1)
 
-  invisible(list(din=graphics::par("din"), usr=usr, heights=c(h2, h1) / h))
+  invisible(list("din"=graphics::par("din"), "usr"=usr, "heights"=c(h2, h1) / h))
 }
 
 
