@@ -7,12 +7,10 @@
 #' @param r 'RasterLayer'.
 #'   Raster grid layer with cell values.
 #'
-#' @return Returns an object of class 'RasterLayer' giving
+#' @return An object of class 'RasterLayer' giving
 #'   \code{r} with cell values in the smaller cell chunks set to \code{NA}.
 #'
 #' @author J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center
-#'
-#' @seealso \code{\link{clump}}
 #'
 #' @keywords utilities
 #'

@@ -24,7 +24,7 @@
 #'   Additional arguments to be passed to the \code{\link{GetInsetLocation}} function---used
 #'   to position the scale bar in the main plot region.
 #'
-#' @return Used for the side-effect of a scale bar drawn on the current graphics device.
+#' @return Invisible \code{NULL}
 #'
 #' @author J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center
 #'
@@ -35,7 +35,8 @@
 #' @export
 #'
 #' @examples
-#' plot(-100:100, -100:100, type = "n", xlab = "x in meters", ylab = "y in meters", asp = 2)
+#' plot(-100:100, -100:100, type = "n", xlab = "x in meters",
+#'      ylab = "y in meters", asp = 2)
 #' AddScaleBar()
 #' AddScaleBar(loc = "center")
 #' AddScaleBar(unit = "METERS", loc = "topleft", padin = 0.2)
@@ -44,12 +45,14 @@
 #' AddScaleBar(unit = c("METERS", "FEET"), conv.fact = c(1, 3.28084),
 #'             vert.exag = TRUE, loc = "bottomright", inset = 0.1)
 #'
-#' plot(c(-38.31, -35.5), c(40.96, 37.5), type = "n", xlab = "longitude", ylab = "latitude")
+#' plot(c(-38.31, -35.5), c(40.96, 37.5), type = "n",
+#'      xlab = "longitude", ylab = "latitude")
 #' AddScaleBar(unit = "KILOMETERS", longlat = TRUE)
 #' AddScaleBar(unit = "MILES", conv.fact = 0.621371, longlat = TRUE,
 #'             loc = "topright", padin = c(0.4, 0))
-#' AddScaleBar(unit = c("KILOMETERS", "MILES"), conv.fact = c(1, 0.621371),
-#'             longlat = TRUE, loc = "topleft", inset = 0.05)
+#' AddScaleBar(unit = c("KILOMETERS", "MILES"),
+#'             conv.fact = c(1, 0.621371), longlat = TRUE,
+#'             loc = "topleft", inset = 0.05)
 #'
 
 AddScaleBar <- function(unit=NULL, conv.fact=NULL, vert.exag=NULL, longlat=FALSE,

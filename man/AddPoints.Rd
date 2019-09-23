@@ -87,7 +87,7 @@ Defaults to 2 percent of the axis range.}
 \item{bty}{'character' string.
 Type of box to be drawn about the legend.
 A value of \code{"o"} (the default) results in a box and
-a value of \code{"n"} supresses the box.}
+a value of \code{"n"} suppresses the box.}
 
 \item{breaks}{'numeric' vector.
 Finite breakpoints for the legend circle symbols.}
@@ -113,7 +113,7 @@ Legend subtitle to be placed below the main title.}
 If true, a legend is drawn.}
 
 \item{draw.points}{'logical' flag.
-If true, the circle symobls are drawn.}
+If true, the circle symbols are drawn.}
 
 \item{add}{'logical' flag.
 If true, circle symbols (and an optional legend) are added to an existing plot.}
@@ -122,7 +122,7 @@ If true, circle symbols (and an optional legend) are added to an existing plot.}
 Unused if \code{add = TRUE}.}
 }
 \value{
-Used for the side-effect of a bubble map drawn on the current graphics device.
+Invisible \code{NULL}
 }
 \description{
 Add point symbols to a plot.
@@ -144,22 +144,25 @@ AddPoints(x, z = z, fg = "#00000080", lwd = 0.5, title = "Title",
 
 idxs <- sample.int(n, floor(n / 2))
 z[idxs] <- -z[idxs]
-AddPoints(x, z = z, bg.neg = "#2A8FBDCB", breaks = pretty(z, n = 8),
+AddPoints(x, z = z, bg.neg = "#2A8FBDCB",
+          breaks = pretty(z, n = 8),
           legend.loc = "bottomleft", add = FALSE)
 
 Pal1 <- colorRampPalette(c("#CA0020CB", "#F4A582CB"), alpha = TRUE)
 Pal2 <- colorRampPalette(c("#0571B0CB", "#92C5DECB"), alpha = TRUE)
 AddPoints(x, z = z, bg = Pal1, bg.neg = Pal2, add = FALSE)
 
-AddPoints(x, z = z, bg = Pal1, bg.neg = Pal2, add = FALSE, make.intervals = TRUE)
+AddPoints(x, z = z, bg = Pal1, bg.neg = Pal2, add = FALSE,
+          make.intervals = TRUE)
 
-AddPoints(x, z = z, bg = Pal1, bg.neg = Pal2, add = FALSE, make.intervals = TRUE,
-          inches = 0.1)
+AddPoints(x, z = z, bg = Pal1, bg.neg = Pal2, add = FALSE,
+          make.intervals = TRUE, inches = 0.1)
 
 AddPoints(x, z = abs(z), title = "Quantiles", bg = topo.colors,
           quantile.breaks = TRUE, add = FALSE)
 
-z <- as.factor(rep(c("dog", "cat", "ant", "pig", "bat"), length.out = n))
+z <- as.factor(rep(c("dog", "cat", "ant", "pig", "bat"),
+                   length.out = n))
 bg <- GetColors(nlevels(z), scheme = "bright", alpha = 0.8)
 AddPoints(x, z = z, bg = bg, add = FALSE)
 
@@ -169,9 +172,6 @@ AddPoints(x, draw.legend = FALSE, add = FALSE)
 \references{
 Tanimura, S., Kuroiwa, C., and Mizota, T., 2006, Proportional Symbol Mapping in R:
   Journal of Statistical Software, v. 15, no. 5, 7 p.
-}
-\seealso{
-\code{\link{symbols}}
 }
 \author{
 J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center

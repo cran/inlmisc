@@ -12,7 +12,7 @@ Path name of the \bold{knitr} source document (\file{.Rnw} or \file{.Rmd}),
 or R code that has been extracted from a \bold{knitr} source document (\file{.R}).}
 }
 \value{
-Returns a 'list' of length equal to the number of code chunks in \code{path}.
+A 'list' of length equal to the number of code chunks in \code{path}.
   Each list component is named after its corresponding chunk name (\code{chunk-name}).
   The returned object includes the value of the \code{path} argument as an attribute.
 }
@@ -27,20 +27,14 @@ If the source document is \file{.Rnw} or \file{.Rmd} the \code{purl} function is
   names like \code{unnamed-chunk-i} where \code{i} is the chunk number.
 }
 \examples{
-\dontrun{
-file <- system.file("misc", "knitr-markdown.Rmd", package = "inlmisc")
+file <- system.file("misc/knitr-markdown.Rmd", package = "inlmisc")
 chunks <- ReadCodeChunks(file)
-
+print(chunks)
 attr(chunks, "path")
-names(chunks)
-chunks[["named-chunk-2"]]
 
-eval(parse(text = unlist(chunks[c("unnamed-chunk-3", "named-chunk-4")])))
-}
+txt <- chunks[c("unnamed-chunk-3", "named-chunk-4")]
+eval(parse(text = unlist(txt)))
 
-}
-\seealso{
-\code{\link[knitr]{read_chunk}}
 }
 \author{
 J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center

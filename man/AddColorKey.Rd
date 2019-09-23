@@ -54,22 +54,26 @@ Whether the axis is to be logarithmic.}
 Margin size in inches and of the form \code{c(bottom, left, top, right)}.}
 }
 \value{
-Used for the side-effect of a color key drawn on the current graphics device.
+Invisible \code{NULL}
 }
 \description{
 Add a color key to a plot.
 }
 \examples{
-op <- par(mfrow = c(7, 1), omi = c(1, 1, 1, 1), mar = c(2, 3, 2, 3))
-AddColorKey(breaks = 0:10, explanation = "Example description of data variable.")
+op <- par(mfrow = c(7, 1), omi = c(1, 1, 1, 1),
+          mar = c(2, 3, 2, 3))
+AddColorKey(breaks = 0:10,
+            explanation = "Example description of data variable.")
 AddColorKey(breaks = 0:1000, at = pretty(0:1000))
 AddColorKey(breaks = c(0, 1, 2, 4, 8, 16))
 breaks <- c(pi * 10^(-5:5))
 AddColorKey(breaks = breaks, log = TRUE)
-AddColorKey(breaks = breaks, at = breaks[as.logical(seq_along(breaks) \%\% 2)],
+AddColorKey(breaks = breaks,
+            at = breaks[as.logical(seq_along(breaks) \%\% 2)],
             scipen = NULL, log = TRUE)
 AddColorKey(is.categorical = TRUE, labels = LETTERS[1:5])
-AddColorKey(is.categorical = TRUE, col = GetColors(5, scheme = "bright"))
+AddColorKey(is.categorical = TRUE,
+            col = GetColors(5, scheme = "bright"))
 par(op)
 
 }

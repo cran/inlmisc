@@ -22,7 +22,7 @@ you can supply the full path to a \file{zip.exe} here, in order to make a KMZ fi
 Color names}
 }
 \value{
-Used for the side-effect files written to disk.
+Invisible \code{NULL}
 }
 \description{
 Write a raster-stack, a collection of raster layers,
@@ -50,20 +50,19 @@ If the zip program is unavailable on windows, install it
 }
 \examples{
 \dontrun{
-rs <- raster::stack(system.file("external/rlogo.grd", package = "raster"))
+rs <- raster::stack(system.file("external/rlogo.grd",
+                                package = "raster"))
 print(rs)
-path <- file.path(tempdir(), "rlogo")
+path <- file.path(getwd(), "rlogo")
 dir.create(path)
 ExportRasterStack(rs, path)
-list.files(normalizePath(path, winslash = "/"), full.name = TRUE,
-           recursive = TRUE, include.dirs = TRUE)
+list.files(normalizePath(path, winslash = "/"),
+           full.name = TRUE, recursive = TRUE,
+           include.dirs = TRUE)
 
 unlink(path, recursive = TRUE)
 }
 
-}
-\seealso{
-\code{\link[raster]{writeRaster}}
 }
 \author{
 J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center

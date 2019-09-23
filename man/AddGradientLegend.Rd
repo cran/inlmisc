@@ -40,7 +40,7 @@ Dimensions (width and height) of the color strip, in picas.}
 to position the legend in the main plot region.}
 }
 \value{
-Used for the side-effect of a legend drawn on the current graphics device.
+Invisible \code{NULL}
 }
 \description{
 Add a continuous color gradient legend strip to a plot.
@@ -51,10 +51,14 @@ plot(NA, xlim = c(0, 100), ylim = c(-10, 10),
 breaks <- 0:200
 AddGradientLegend(breaks, title = "Title", loc = "bottomleft")
 AddGradientLegend(breaks, pal = GetColors(scheme = "iridescent"),
-                  title = "Title", loc = "bottomleft", inset = c(0.2, 0.1))
+                  title = "Title", loc = "bottomleft",
+                  inset = c(0.2, 0.1))
+AddGradientLegend(breaks, pal = GetColors(scheme = "turbo"),
+                  loc = "center", labels = FALSE)
 breaks <- seq(0, 2e+06, length.out = 5)
 AddGradientLegend(breaks, pal = GetColors(scheme = "discrete rainbow"),
-                  scientific = TRUE, strip.dim = c(1, 14), inset = c(0.2, 0.1))
+                  scientific = TRUE, strip.dim = c(1, 14),
+                  inset = c(0.2, 0.1))
 AddGradientLegend(breaks, pal = GetColors(scheme = "YlOrBr"),
                   loc = "topright", inset = 0.1)
 

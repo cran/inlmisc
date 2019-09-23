@@ -25,7 +25,7 @@
 #'   This function integrates TNM endpoint services within an interactive web map using
 #'   \href{https://rstudio.github.io/leaflet/}{Leaflet for R}.
 #'
-#' @return Returns an object of class 'leaflet', a hypertext markup language (HTML) widget object.
+#' @return An object of class 'leaflet', a hypertext markup language (HTML) widget object.
 #'   See example for instructions on how to add additional graphic layers
 #'   (such as points, lines, and polygons) to the map widget.
 #'   Graphic layers added to the web map must be in latitude and longitude using WGS 84
@@ -41,9 +41,12 @@
 #'
 #' @examples
 #' map <- CreateWebMap(collapsed = FALSE)
-#' lng <- c(-112.049705, -122.171257, -77.367458, -149.803565, -80.248344)
-#' lat <- c(43.517810, 37.456526, 38.947206, 61.187905, 26.080860)
-#' map <- leaflet::addMarkers(map, lng, lat)
+#' ll <- rbind(c(-112.049705, 43.517810),
+#'             c(-122.171257, 37.456526),
+#'             c( -77.367458, 38.947206),
+#'             c(-149.803565, 61.187905),
+#'             c( -80.248344, 26.080860))
+#' map <- leaflet::addMarkers(map, ll[, 1], ll[, 2])
 #' map
 #'
 

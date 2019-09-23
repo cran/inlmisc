@@ -26,7 +26,7 @@
 #'   Therefore, the conversion of gridded data between cartographic projections
 #'   may introduce a new source of error.
 #'
-#' @return Used for the side-effect files written to disk.
+#' @return Invisible \code{NULL}
 #'
 #' @note If the zip program is unavailable on windows, install it
 #'   by downloading the latest binary version from the
@@ -36,8 +36,6 @@
 #'
 #' @author J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center
 #'
-#' @seealso \code{\link[raster]{writeRaster}}
-#'
 #' @keywords IO
 #'
 #' @importClassesFrom raster BasicRaster
@@ -46,13 +44,15 @@
 #'
 #' @examples
 #' \dontrun{
-#' rs <- raster::stack(system.file("external/rlogo.grd", package = "raster"))
+#' rs <- raster::stack(system.file("external/rlogo.grd",
+#'                                 package = "raster"))
 #' print(rs)
-#' path <- file.path(tempdir(), "rlogo")
+#' path <- file.path(getwd(), "rlogo")
 #' dir.create(path)
 #' ExportRasterStack(rs, path)
-#' list.files(normalizePath(path, winslash = "/"), full.name = TRUE,
-#'            recursive = TRUE, include.dirs = TRUE)
+#' list.files(normalizePath(path, winslash = "/"),
+#'            full.name = TRUE, recursive = TRUE,
+#'            include.dirs = TRUE)
 #'
 #' unlink(path, recursive = TRUE)
 #' }

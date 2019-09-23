@@ -24,9 +24,9 @@
 #'   Defaults to the user coordinate extent of the main plot region, see \code{par("usr")}.
 #' @param bty 'character' string.
 #'   Type of box to be drawn about the inset map.
-#'   A value of \code{"o"} (the default) results in a box and a value of \code{"n"} supresses the box.
+#'   A value of \code{"o"} (the default) results in a box and a value of \code{"n"} suppresses the box.
 #'
-#' @return Used for the side-effect of a inset map drawn on the current graphics device.
+#' @return Invisible \code{NULL}
 #'
 #' @author J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center
 #'
@@ -37,13 +37,17 @@
 #' @export
 #'
 #' @examples
-#' file <- system.file("extdata/county.geojson", package = "inlmisc")[1]
+#' file <- system.file("extdata/county.geojson",
+#'                     package = "inlmisc")[1]
 #' county <- rgdal::readOGR(file)
 #' ext <- c(-113.4005, -112.2764, 43.30, 44.11)
-#' PlotMap(county, xlim = ext[1:2], ylim = ext[3:4], dms.tick = TRUE)
+#' PlotMap(county, xlim = ext[1:2], ylim = ext[3:4],
+#'         dms.tick = TRUE)
 #' sp::plot(county, add = TRUE)
-#' inlmisc::AddInsetMap(county, width = 2, main.label = list("IDAHO", "adj" = c(0, -10)),
-#'                      sub.label=list("Map area", "adj" = c(0, -4)), loc = "topright")
+#' inlmisc::AddInsetMap(county, width = 2,
+#'                      main.label = list("IDAHO", "adj" = c(0, -10)),
+#'                      sub.label = list("Map area", "adj" = c(0, -4)),
+#'                      loc = "topright")
 #'
 
 AddInsetMap <- function(p, col=c("#D8D8D8", "#BFA76F"),

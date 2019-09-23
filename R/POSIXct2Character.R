@@ -7,7 +7,7 @@
 #' @param fmt 'character' string.
 #'   Conversion specification format
 #'
-#' @return Returns a 'character' vector representing time.
+#' @return A 'character' vector representing time.
 #'
 #' @note R incorrectly formats objects of calss '\link{POSIXct}' with fractional seconds.
 #' For example, a 'POSIXct' time with fractional part \code{.3} seconds (stored as \code{0.29999})
@@ -18,15 +18,15 @@
 #'
 #' @author J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center
 #'
-#' @seealso \code{\link{strptime}}
-#'
 #' @keywords manip
 #'
 #' @export
 #'
 #' @examples
-#' txt <- c("11/10/2011 07:49:36.3", "04/01/2013 17:22:08.123",
-#'          "01/06/2013 01:02:16.123", "12/14/2038 15:42:04.123456")
+#' txt <- c("11/10/2011 07:49:36.3",
+#'          "04/01/2013 17:22:08.123",
+#'          "01/06/2013 01:02:16.123",
+#'          "12/14/2038 15:42:04.123456")
 #' date.time <- as.POSIXct(txt, format = "%m/%d/%Y %H:%M:%OS")
 #'
 #' options("digits.secs" = 3)

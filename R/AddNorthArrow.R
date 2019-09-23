@@ -17,7 +17,7 @@
 #'   Additional arguments to be passed to the \code{\link{GetInsetLocation}} function---used
 #'   to position the north arrow in the main plot region.
 #'
-#' @return Used for the side-effect of a north arrow drawn on the current graphics device.
+#' @return Invisible \code{NULL}
 #'
 #' @author J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center
 #'
@@ -32,7 +32,8 @@
 #' m <- m[nrow(m):1, ncol(m):1]
 #' x <- seq(from = 2667405, length.out = ncol(m), by = 10)
 #' y <- seq(from = 6478705, length.out = nrow(m), by = 10)
-#' r <- raster::raster(m, xmn = min(x), xmx = max(x), ymn = min(y), ymx = max(y),
+#' r <- raster::raster(m, xmn = min(x), xmx = max(x),
+#'                     ymn = min(y), ymx = max(y),
 #'                     crs = "+init=epsg:27200")
 #' PlotMap(r, pal = GetColors(scheme = "DEM screen"))
 #' AddNorthArrow(raster::crs(r), loc = "center")

@@ -12,29 +12,24 @@
 #'   Unnamed chunks (that is, \code{chunk-name} is missing) will be assigned
 #'   names like \code{unnamed-chunk-i} where \code{i} is the chunk number.
 #'
-#' @return Returns a 'list' of length equal to the number of code chunks in \code{path}.
+#' @return A 'list' of length equal to the number of code chunks in \code{path}.
 #'   Each list component is named after its corresponding chunk name (\code{chunk-name}).
 #'   The returned object includes the value of the \code{path} argument as an attribute.
 #'
 #' @author J.C. Fisher, U.S. Geological Survey, Idaho Water Science Center
-#'
-#' @seealso \code{\link[knitr]{read_chunk}}
 #'
 #' @keywords utilities
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' file <- system.file("misc", "knitr-markdown.Rmd", package = "inlmisc")
+#' file <- system.file("misc/knitr-markdown.Rmd", package = "inlmisc")
 #' chunks <- ReadCodeChunks(file)
-#'
+#' print(chunks)
 #' attr(chunks, "path")
-#' names(chunks)
-#' chunks[["named-chunk-2"]]
 #'
-#' eval(parse(text = unlist(chunks[c("unnamed-chunk-3", "named-chunk-4")])))
-#' }
+#' txt <- chunks[c("unnamed-chunk-3", "named-chunk-4")]
+#' eval(parse(text = unlist(txt)))
 #'
 
 ReadCodeChunks <- function(path) {
