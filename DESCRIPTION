@@ -1,6 +1,6 @@
 Package: inlmisc
 Title: Miscellaneous Functions for the USGS INL Project Office
-Version: 0.4.8
+Version: 0.4.9
 Authors@R: person(given=c("Jason", "C."), family="Fisher", role=c("aut", "cre"), email="jfisher@usgs.gov", comment=c(ORCID="0000-0001-9032-8912"))
 Description: A collection of functions for creating high-level graphics,
     performing raster-based analysis, processing MODFLOW-based models,
@@ -25,10 +25,10 @@ BugReports: https://github.com/USGS-R/inlmisc/issues
 Encoding: UTF-8
 LazyData: true
 LazyDataCompression: xz
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 NeedsCompilation: yes
-Packaged: 2019-09-23 14:47:49 UTC; jfisher
+Packaged: 2020-01-15 06:14:35 UTC; jfisher
 Author: Jason C. Fisher [aut, cre] (<https://orcid.org/0000-0001-9032-8912>)
 Maintainer: Jason C. Fisher <jfisher@usgs.gov>
 Repository: CRAN
-Date/Publication: 2019-09-23 16:50:02 UTC
+Date/Publication: 2020-01-15 07:30:03 UTC
